@@ -74,6 +74,12 @@ export default function Calendar() {
     return date.toISOString().split('T')[0];
   };
   
+  // Convert date string to proper date object
+  const parseDate = (dateStr: string): Date => {
+    const [year, month, day] = dateStr.split('-').map(num => parseInt(num));
+    return new Date(year, month - 1, day);
+  };
+  
   // Mutation for creating a reservation
   const createReservation = useMutation({
     mutationFn: async (data: ReservationFormValues) => {
@@ -101,7 +107,17 @@ export default function Calendar() {
   });
   
   const onSubmit = (data: ReservationFormValues) => {
-    createReservation.mutate(data);
+    // Convert date strings to proper date objects to avoid format errors
+    if (selectedStartDate && selectedEndDate) {
+      const startDate = parseDate(selectedStartDate);
+      const endDate = parseDate(selectedEndDate);
+      
+      createReservation.mutate({
+        ...data,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
+      });
+    }
   };
   
   // Calendar month navigation
@@ -293,73 +309,58 @@ export default function Calendar() {
         {/* Calendar */}
         <Card className="lg:col-span-2 bg-card shadow-sm">
           <CardContent className="p-6">
-            <div className="carbon-calendar-header mb-4">
-              <Button variant="ghost" size="sm" className="text-white" onClick={goToPrevMonth}>
+            <div className="flex justify-between items-center mb-4">
+              <Button variant="ghost" size="icon" className="text-gray-500" onClick={goToPrevMonth}>
                 <ChevronLeft className="h-5 w-5" />
               </Button>
-              <h3 className="text-xl font-medium">
+              <h3 className="text-xl font-medium text-center">
                 {monthNames[currentMonth]} {year}
               </h3>
-              <Button variant="ghost" size="sm" className="text-white" onClick={goToNextMonth}>
+              <Button variant="ghost" size="icon" className="text-gray-500" onClick={goToNextMonth}>
                 <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
-
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-white border border-blue-700 mr-1"></div>
-                <span className="text-xs text-muted-foreground">Disponible</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-amber-500 mr-1"></div>
-                <span className="text-xs text-muted-foreground">En revisión</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-red-500 mr-1"></div>
-                <span className="text-xs text-muted-foreground">Ocupado</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-gray-200 mr-1"></div>
-                <span className="text-xs text-muted-foreground">Pasado</span>
-              </div>
-            </div>
             
-            <div className="carbon-calendar-grid border border-border rounded-md overflow-hidden">
-              {dayNames.map((day, index) => (
-                <div key={index} className="carbon-calendar-day-header">
-                  {day}
-                </div>
-              ))}
-            
-              {calendarDays.map((day, index) => {
-                let cellClass = "calendar-cell ";
-                
-                if (day.isPadding) {
-                  cellClass += "text-muted-foreground bg-muted/30";
-                } else if (day.isPastDate) {
-                  cellClass += "calendar-day-past";
-                } else if (day.isSelected) {
-                  cellClass += "calendar-day-selected";
-                } else if (day.isInRange) {
-                  cellClass += "calendar-day-in-range";
-                } else if (day.status === 'available') {
-                  cellClass += "calendar-day-available";
-                } else if (day.status === 'pending') {
-                  cellClass += "calendar-day-pending";
-                } else if (day.status === 'occupied') {
-                  cellClass += "calendar-day-occupied";
-                }
-                
-                return (
-                  <div
-                    key={index}
-                    className={cellClass}
-                    onClick={() => !day.isPadding && handleDateClick(day.dateStr || '', day.status || '', Boolean(day.isPastDate))}
-                  >
-                    {day.day}
+            <div className="mb-2">
+              <div className="grid grid-cols-7 gap-px">
+                {dayNames.map((day, index) => (
+                  <div key={index} className="text-center py-2 text-gray-500 font-medium">
+                    {day}
                   </div>
-                );
-              })}
+                ))}
+              </div>
+            
+              <div className="grid grid-cols-7 gap-px">
+                {calendarDays.map((day, index) => {
+                  let cellClass = "calendar-cell ";
+                  
+                  if (day.isPadding) {
+                    cellClass += "text-gray-400";
+                  } else if (day.isPastDate) {
+                    cellClass += "calendar-day-past";
+                  } else if (day.isSelected) {
+                    cellClass += "calendar-day-selected";
+                  } else if (day.isInRange) {
+                    cellClass += "calendar-day-in-range";
+                  } else if (day.status === 'available') {
+                    cellClass += "calendar-day-available";
+                  } else if (day.status === 'pending') {
+                    cellClass += "calendar-day-pending";
+                  } else if (day.status === 'occupied') {
+                    cellClass += "calendar-day-occupied";
+                  }
+                  
+                  return (
+                    <div
+                      key={index}
+                      className={cellClass}
+                      onClick={() => !day.isPadding && handleDateClick(day.dateStr || '', day.status || '', Boolean(day.isPastDate))}
+                    >
+                      {day.day}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
             
             <div className="mt-4">

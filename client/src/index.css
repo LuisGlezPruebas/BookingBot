@@ -60,7 +60,7 @@
 
 @layer components {
   .calendar-cell {
-    @apply aspect-square h-14 flex items-center justify-center text-2xl font-medium p-1 border-b border-r border-border transition-colors;
+    @apply aspect-square h-14 flex items-center justify-center text-lg font-normal p-1 transition-colors;
   }
   
   .reservation-status-available {
@@ -76,7 +76,7 @@
   }
   
   .calendar-day-available {
-    @apply bg-white hover:bg-blue-100 cursor-pointer text-gray-900 hover:text-blue-700;
+    @apply bg-green-50 hover:bg-green-100 cursor-pointer text-gray-700;
   }
   
   .calendar-day-pending {
@@ -88,7 +88,7 @@
   }
   
   .calendar-day-past {
-    @apply bg-gray-100 text-gray-400 cursor-not-allowed line-through;
+    @apply bg-gray-700 text-gray-300 cursor-not-allowed;
   }
   
   .calendar-day-selected {
