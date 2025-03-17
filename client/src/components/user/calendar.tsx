@@ -273,7 +273,8 @@ export default function Calendar() {
       
       if (selectedStartDate && selectedEndDate) {
         isSelected = dateStr === selectedStartDate || dateStr === selectedEndDate;
-        isInRange = dateStr > selectedStartDate && dateStr < selectedEndDate;
+        // Include the end date in the range by using >= instead of >
+        isInRange = dateStr > selectedStartDate && dateStr <= selectedEndDate;
       } else if (selectedStartDate) {
         isSelected = dateStr === selectedStartDate;
       }
