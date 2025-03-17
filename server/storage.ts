@@ -42,39 +42,7 @@ export class MemStorage implements IStorage {
     this.createUser({ username: "admin", password: "123", isAdmin: true });
     this.createUser({ username: "Luis Glez", password: "", isAdmin: false });
     
-    // Add some sample reservations
-    const luisId = 2; // ID of Luis Glez
-    
-    // Sample approved reservation for July 2024
-    this.createReservation({
-      userId: luisId,
-      startDate: new Date("2024-07-15"),
-      endDate: new Date("2024-07-21"),
-      numberOfGuests: 4,
-      notes: "Vacaciones de verano"
-    }).then(res => {
-      this.updateReservationStatus(res.id, { status: "approved" });
-    });
-    
-    // Sample pending reservation for July 2024
-    this.createReservation({
-      userId: luisId,
-      startDate: new Date("2024-07-26"),
-      endDate: new Date("2024-07-29"),
-      numberOfGuests: 2,
-      notes: "Fin de semana largo"
-    });
-    
-    // Sample rejected reservation for May 2024
-    this.createReservation({
-      userId: luisId,
-      startDate: new Date("2024-05-10"),
-      endDate: new Date("2024-05-13"),
-      numberOfGuests: 6,
-      notes: "Cumpleaños familiar"
-    }).then(res => {
-      this.updateReservationStatus(res.id, { status: "rejected" });
-    });
+    // No sample reservations - starting with a clean database
   }
 
   // User operations
