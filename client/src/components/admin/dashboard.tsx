@@ -52,7 +52,7 @@ function StatsCard({ title, value, icon, suffix }: StatsCardProps) {
 }
 
 export default function AdminDashboard() {
-  const [year, setYear] = useState<string>("2024");
+  const [year, setYear] = useState<string>("2025");
   
   const { data: stats, isLoading } = useQuery({
     queryKey: [`/api/admin/stats/${year}`],
@@ -89,6 +89,7 @@ export default function AdminDashboard() {
             <SelectContent>
               <SelectItem value="2023">2023</SelectItem>
               <SelectItem value="2024">2024</SelectItem>
+              <SelectItem value="2025">2025</SelectItem>
             </SelectContent>
           </Select>
         </div>
