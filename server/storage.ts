@@ -174,7 +174,7 @@ export class MemStorage implements IStorage {
         day.setHours(0, 0, 0, 0);
         
         // Check if the current day is within the reservation period
-        if (day >= startDate && day < endDate) {
+        if (day >= startDate && day <= endDate) {
           if (reservation.status === 'approved') {
             status = 'occupied';
             break; // Priority: occupied > pending > available
