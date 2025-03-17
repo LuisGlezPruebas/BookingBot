@@ -38,7 +38,8 @@ export const insertReservationSchema = z.object({
 });
 
 export const updateReservationStatusSchema = z.object({
-  status: z.enum(["pending", "approved", "rejected"])
+  status: z.enum(["pending", "approved", "rejected"]),
+  adminMessage: z.string().optional() // Mensaje opcional del administrador
 });
 
 // Types

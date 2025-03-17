@@ -126,7 +126,8 @@ export class EmailService {
   static async sendReservationStatusUpdateToUser(
     reservation: Reservation, 
     username: string, 
-    userEmail: string
+    userEmail: string,
+    adminMessage: string = ""
   ): Promise<void> {
     try {
       const startDateFormatted = formatDate(reservation.startDate.toString());
@@ -162,6 +163,8 @@ export class EmailService {
           </ul>
           
           <p>${statusMessage}</p>
+          
+          ${adminMessage ? `<p><strong>Mensaje del administrador:</strong> ${adminMessage}</p>` : ''}
           
           <p>Gracias,<br>Sistema de Reservas</p>
         `

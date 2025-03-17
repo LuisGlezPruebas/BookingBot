@@ -91,6 +91,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Processed reservation data:", validatedData);
       
       const reservation = await storage.createReservation(validatedData);
+      
+      try {
+        // Obtener información del usuario
+        const userInfo = await UserService.getUserInfo(validatedData.userId);
+        
+        // Enviar email al administrador
+        await EmailService.sendNewReservationNotificationToAdmin(reservation, userInfo.username);
+        
+        // Enviar confirmación al usuario
+        await EmailService.sendReservationConfirmationToUser(
+          reservation, 
+          userInfo.username, 
+          userInfo.email
+        );
+        
+        console.log("Email notifications sent successfully");
+      } catch (emailError) {
+        console.error("Error sending email notifications:", emailError);
+        // No fallamos la solicitud si los emails fallan
+      }
+      
       res.status(201).json(reservation);
     } catch (error) {
       console.error("Reservation error:", error);
@@ -186,11 +207,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const validatedData = updateReservationStatusSchema.parse(req.body);
       
+      const originalReservation = await storage.getReservation(id);
+      if (!originalReservation) {
+        res.status(404).json({ message: "Reservation not found" });
+        return;
+      }
+      
       const updatedReservation = await storage.updateReservationStatus(id, validatedData);
       
       if (!updatedReservation) {
-        res.status(404).json({ message: "Reservation not found" });
+        res.status(404).json({ message: "Error updating reservation" });
         return;
+      }
+      
+      try {
+        // Obtener la información del usuario
+        const user = await storage.getUser(updatedReservation.userId);
+        const userInfo = await UserService.getUserInfo(updatedReservation.userId);
+        
+        if (user && updatedReservation.status !== originalReservation.status) {
+          // Enviar email al usuario sobre el cambio de estado
+          await EmailService.sendReservationStatusUpdateToUser(
+            updatedReservation,
+            userInfo.username,
+            userInfo.email,
+            validatedData.adminMessage || ""
+          );
+          
+          console.log(`Email de actualización de estado enviado a ${userInfo.email}`);
+        }
+      } catch (emailError) {
+        console.error("Error al enviar email de actualización de estado:", emailError);
+        // No fallamos la solicitud si los emails fallan
       }
       
       res.json(updatedReservation);

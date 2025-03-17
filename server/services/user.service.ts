@@ -53,6 +53,6 @@ export class UserService {
    */
   static async isAdmin(userId: number): Promise<boolean> {
     const user = await storage.getUser(userId);
-    return user?.role === 'admin';
+    return user?.isAdmin === true;
   }
 }
