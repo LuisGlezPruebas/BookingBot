@@ -88,7 +88,7 @@
   }
   
   .calendar-day-past {
-    @apply bg-gray-700 text-gray-300 cursor-not-allowed;
+    @apply bg-white text-gray-300 cursor-not-allowed;
   }
   
   .calendar-day-selected {

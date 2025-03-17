@@ -107,16 +107,36 @@ export default function Calendar() {
   });
   
   const onSubmit = (data: ReservationFormValues) => {
+    // Debug - log the data to troubleshoot format issues
+    console.log("Form submission data:", {
+      startDateString: selectedStartDate,
+      endDateString: selectedEndDate
+    });
+    
     // Convert date strings to proper date objects to avoid format errors
     if (selectedStartDate && selectedEndDate) {
-      const startDate = parseDate(selectedStartDate);
-      const endDate = parseDate(selectedEndDate);
-      
-      createReservation.mutate({
-        ...data,
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString()
-      });
+      try {
+        const startDate = parseDate(selectedStartDate);
+        const endDate = parseDate(selectedEndDate);
+        
+        console.log("Parsed dates:", {
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString()
+        });
+        
+        createReservation.mutate({
+          ...data,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString()
+        });
+      } catch (error) {
+        console.error("Error parsing dates:", error);
+        toast({
+          title: "Error de formato de fecha",
+          description: "Hubo un problema con el formato de las fechas. Por favor intenta de nuevo.",
+          variant: "destructive",
+        });
+      }
     }
   };
   
