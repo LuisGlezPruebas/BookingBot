@@ -396,7 +396,7 @@ export default function Calendar() {
             </div>
             
             <div className="mt-4">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mb-3">
                 {selectionStep === "entrada" 
                   ? "Selecciona las fechas de entrada y salida en el calendario." 
                   : selectionStep === "salida" 
@@ -404,6 +404,31 @@ export default function Calendar() {
                     : `Selecciona las fechas de entrada y salida en el calendario.`
                 }
               </p>
+              
+              {/* Leyenda del calendario */}
+              <div className="flex flex-wrap items-center gap-3 mt-2">
+                <span className="text-xs font-semibold text-muted-foreground">Leyenda:</span>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded-sm bg-green-100"></div>
+                  <span className="text-xs">Disponible</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded-sm bg-orange-100"></div>
+                  <span className="text-xs">Pendiente</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded-sm bg-red-100"></div>
+                  <span className="text-xs">Ocupado</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded-sm calendar-day-selected"></div>
+                  <span className="text-xs">Seleccionado</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded-sm calendar-day-in-range"></div>
+                  <span className="text-xs">En rango</span>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
