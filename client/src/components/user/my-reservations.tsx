@@ -22,7 +22,7 @@ import {
 import { formatDate } from "@/lib/utils/date-utils";
 
 export default function MyReservations() {
-  const [year, setYear] = useState<string>("2024");
+  const [year, setYear] = useState<string>("2025");
   
   const { data: userReservations, isLoading } = useQuery({
     queryKey: [`/api/user/reservations/${year}`],
@@ -52,6 +52,7 @@ export default function MyReservations() {
             <SelectContent>
               <SelectItem value="2023">2023</SelectItem>
               <SelectItem value="2024">2024</SelectItem>
+              <SelectItem value="2025">2025</SelectItem>
             </SelectContent>
           </Select>
         </div>
