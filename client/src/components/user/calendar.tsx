@@ -185,6 +185,41 @@ export default function Calendar() {
     } else if (selectionStep === "salida") {
       // Adding end date (must be after start date)
       if (parseDate(dateStr) > parseDate(selectedStartDate!)) {
+        // Verificar que no hay días ocupados o pendientes en el rango seleccionado
+        const start = new Date(selectedStartDate!);
+        const end = new Date(dateStr);
+        
+        // Verificar cada día en el rango
+        let rangeHasUnavailableDays = false;
+        const dateChecks: Date[] = [];
+        
+        // Crear un array con todas las fechas del rango
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          dateChecks.push(new Date(d));
+        }
+        
+        // Verificar status de cada fecha en el calendario
+        for (const date of dateChecks) {
+          const checkDateStr = date.toISOString().split('T')[0];
+          const dateEntry = Array.isArray(calendarData) ? 
+            calendarData.find((d: any) => d.date === checkDateStr) : null;
+          
+          if (dateEntry && (dateEntry.status === 'occupied' || dateEntry.status === 'pending')) {
+            rangeHasUnavailableDays = true;
+            break;
+          }
+        }
+        
+        if (rangeHasUnavailableDays) {
+          toast({
+            title: "Fechas no disponibles",
+            description: "El rango seleccionado incluye fechas que ya están ocupadas o pendientes.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        // Si todas las fechas están disponibles, actualizar la selección
         setSelectedEndDate(dateStr);
         setValue("endDate", parseDate(dateStr).toISOString());
         setSelectionStep("completo");

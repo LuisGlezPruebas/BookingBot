@@ -49,6 +49,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Verificar que no haya reservas aprobadas que se solapen con el rango de fechas solicitado
+      const year = startDate.getFullYear().toString();
+      const existingReservations = await storage.getReservationsByYear(year);
+      
+      // Función para verificar si dos rangos de fechas se solapan
+      const datesOverlap = (startA: Date, endA: Date, startB: Date, endB: Date): boolean => {
+        return startA <= endB && startB <= endA;
+      };
+      
+      // Comprobar si hay alguna reserva aprobada que se solape
+      const hasConflict = existingReservations.some(reservation => {
+        // Solo considerar reservas aprobadas
+        if (reservation.status !== 'approved') return false;
+        
+        // Verificar solapamiento
+        return datesOverlap(
+          startDate, 
+          endDate,
+          new Date(reservation.startDate), 
+          new Date(reservation.endDate)
+        );
+      });
+      
+      if (hasConflict) {
+        return res.status(400).json({ 
+          message: "El rango de fechas seleccionado incluye días que ya están ocupados por otra reserva aprobada." 
+        });
+      }
+      
       const validatedData = {
         userId: 2, // Hardcoded user ID for Luis Glez (ID: 2)
         startDate: startDate,
