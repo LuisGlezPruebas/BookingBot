@@ -82,8 +82,18 @@ export default function Calendar() {
   
   // Mutation for creating a reservation
   const createReservation = useMutation({
-    mutationFn: async (data: ReservationFormValues) => {
-      return await apiRequest("POST", "/api/user/reservations", data);
+    mutationFn: async (data: any) => {
+      // Ensure all fields are correctly formatted
+      const formattedData = {
+        startDate: data.startDate,
+        endDate: data.endDate,
+        numberOfGuests: parseInt(data.numberOfGuests || "2"), // Ensure numberOfGuests is a number
+        notes: data.notes || ""
+      };
+      
+      console.log("Sending reservation data:", formattedData);
+      
+      return await apiRequest("POST", "/api/user/reservations", formattedData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/user/calendar/${year}`] });

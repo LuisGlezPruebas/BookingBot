@@ -28,12 +28,13 @@ export const reservations = pgTable("reservations", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const insertReservationSchema = createInsertSchema(reservations).pick({
-  userId: true,
-  startDate: true,
-  endDate: true,
-  numberOfGuests: true,
-  notes: true,
+// Define a custom schema with proper date validation
+export const insertReservationSchema = z.object({
+  userId: z.number(),
+  startDate: z.string().transform(str => new Date(str)),
+  endDate: z.string().transform(str => new Date(str)),
+  numberOfGuests: z.number(),
+  notes: z.string().optional(),
 });
 
 export const updateReservationStatusSchema = z.object({

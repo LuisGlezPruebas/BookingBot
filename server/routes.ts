@@ -36,20 +36,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new reservation
   app.post("/api/user/reservations", async (req: Request, res: Response) => {
     try {
-      const validatedData = insertReservationSchema.parse({
-        ...req.body,
-        // Hardcoded user ID for Luis Glez (ID: 2)
-        userId: 2
-      });
+      console.log("Received reservation data:", req.body);
+      
+      // Manual handling for date conversion
+      const startDate = new Date(req.body.startDate);
+      const endDate = new Date(req.body.endDate);
+      
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return res.status(400).json({ 
+          message: "Invalid date format", 
+          received: { startDate: req.body.startDate, endDate: req.body.endDate } 
+        });
+      }
+      
+      const validatedData = {
+        userId: 2, // Hardcoded user ID for Luis Glez (ID: 2)
+        startDate: startDate,
+        endDate: endDate,
+        numberOfGuests: parseInt(req.body.numberOfGuests) || 2,
+        notes: req.body.notes || ""
+      };
+      
+      console.log("Processed reservation data:", validatedData);
       
       const reservation = await storage.createReservation(validatedData);
       res.status(201).json(reservation);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid reservation data", errors: error.errors });
-      } else {
-        res.status(500).json({ message: "Error creating reservation" });
-      }
+      console.error("Reservation error:", error);
+      res.status(500).json({ message: "Error creating reservation" });
     }
   });
   
