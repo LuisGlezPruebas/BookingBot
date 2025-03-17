@@ -3,7 +3,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { 
   Check, 
-  X 
+  X,
+  MessageSquare
 } from "lucide-react";
 import { 
   Card, 
@@ -24,6 +25,17 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -31,6 +43,10 @@ import { formatDate } from "@/lib/utils/date-utils";
 
 export default function AdminReservations() {
   const [year, setYear] = useState<string>("2025");
+  const [selectedReservationId, setSelectedReservationId] = useState<number | null>(null);
+  const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
+  const [adminMessage, setAdminMessage] = useState<string>("");
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const { toast } = useToast();
   
   // Fetch pending reservation requests
@@ -44,48 +60,57 @@ export default function AdminReservations() {
   });
   
   // Mutations for accepting and rejecting reservations
-  const acceptReservation = useMutation({
-    mutationFn: async (id: number) => {
-      return await apiRequest("PATCH", `/api/admin/reservations/${id}/status`, { status: "approved" });
+  const updateReservationStatus = useMutation({
+    mutationFn: async ({ id, status, message }: { id: number, status: "approved" | "rejected", message?: string }) => {
+      return await apiRequest("PATCH", `/api/admin/reservations/${id}/status`, { 
+        status,
+        adminMessage: message 
+      });
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [`/api/admin/reservations/pending/${year}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/admin/reservations/history/${year}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/admin/stats/${year}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/admin/reservations/${year}`] });
       
-      toast({
-        title: "Reserva aceptada",
-        description: "La reserva ha sido aceptada con éxito.",
-        variant: "default",
-      });
-    },
-  });
-  
-  const rejectReservation = useMutation({
-    mutationFn: async (id: number) => {
-      return await apiRequest("PATCH", `/api/admin/reservations/${id}/status`, { status: "rejected" });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/reservations/pending/${year}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/reservations/history/${year}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/stats/${year}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/reservations/${year}`] });
+      // Limpiar el estado
+      setDialogOpen(false);
+      setSelectedReservationId(null);
+      setActionType(null);
+      setAdminMessage("");
       
       toast({
-        title: "Reserva rechazada",
-        description: "La reserva ha sido rechazada.",
+        title: variables.status === "approved" ? "Reserva aceptada" : "Reserva rechazada",
+        description: variables.status === "approved" 
+          ? "La reserva ha sido aceptada con éxito." 
+          : "La reserva ha sido rechazada.",
         variant: "default",
       });
     },
   });
   
-  const handleAccept = (id: number) => {
-    acceptReservation.mutate(id);
+  // Manejadores para abrir el diálogo de confirmación
+  const openAcceptDialog = (id: number) => {
+    setSelectedReservationId(id);
+    setActionType("approve");
+    setDialogOpen(true);
   };
   
-  const handleReject = (id: number) => {
-    rejectReservation.mutate(id);
+  const openRejectDialog = (id: number) => {
+    setSelectedReservationId(id);
+    setActionType("reject");
+    setDialogOpen(true);
+  };
+  
+  // Función para procesar la acción con el mensaje
+  const handleStatusUpdate = () => {
+    if (selectedReservationId && actionType) {
+      updateReservationStatus.mutate({
+        id: selectedReservationId,
+        status: actionType === "approve" ? "approved" : "rejected",
+        message: adminMessage.trim() || undefined
+      });
+    }
   };
   
   const getNights = (startDate: string, endDate: string) => {
@@ -152,8 +177,8 @@ export default function AdminReservations() {
                             size="icon" 
                             variant="ghost" 
                             className="p-2 rounded-md bg-[#42be65]/10 text-[#42be65] hover:bg-[#42be65]/20 hover:text-[#42be65]"
-                            onClick={() => handleAccept(reservation.id)}
-                            disabled={acceptReservation.isPending}
+                            onClick={() => openAcceptDialog(reservation.id)}
+                            disabled={updateReservationStatus.isPending}
                           >
                             <Check className="h-4 w-4" />
                           </Button>
@@ -161,8 +186,8 @@ export default function AdminReservations() {
                             size="icon" 
                             variant="ghost" 
                             className="p-2 rounded-md bg-[#fa4d56]/10 text-[#fa4d56] hover:bg-[#fa4d56]/20 hover:text-[#fa4d56]"
-                            onClick={() => handleReject(reservation.id)}
-                            disabled={rejectReservation.isPending}
+                            onClick={() => openRejectDialog(reservation.id)}
+                            disabled={updateReservationStatus.isPending}
                           >
                             <X className="h-4 w-4" />
                           </Button>
@@ -239,6 +264,56 @@ export default function AdminReservations() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Diálogo para mensaje al cambiar estado de reserva */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {actionType === "approve" ? "Aprobar Reserva" : "Rechazar Reserva"}
+            </DialogTitle>
+            <DialogDescription>
+              {actionType === "approve" 
+                ? "La reserva será aprobada y se notificará al usuario." 
+                : "La reserva será rechazada y se notificará al usuario."}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-3">
+            <div className="space-y-2">
+              <Label htmlFor="admin-message">Mensaje para el usuario (opcional)</Label>
+              <Textarea 
+                id="admin-message"
+                placeholder="Escribe un mensaje personalizado para el usuario..."
+                value={adminMessage}
+                onChange={(e) => setAdminMessage(e.target.value)}
+                className="min-h-[100px]"
+              />
+              <p className="text-xs text-muted-foreground">
+                Este mensaje se incluirá en el email que reciba el usuario.
+              </p>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              variant={actionType === "approve" ? "default" : "destructive"}
+              onClick={handleStatusUpdate}
+              disabled={updateReservationStatus.isPending}
+            >
+              {updateReservationStatus.isPending ? "Procesando..." : 
+                actionType === "approve" ? "Aprobar Reserva" : "Rechazar Reserva"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
