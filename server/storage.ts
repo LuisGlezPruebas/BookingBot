@@ -83,7 +83,8 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    for (const user of this.users.values()) {
+    const users = Array.from(this.users.values());
+    for (const user of users) {
       if (user.username.toLowerCase() === username.toLowerCase()) {
         return user;
       }
@@ -93,7 +94,12 @@ export class MemStorage implements IStorage {
 
   async createUser(user: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
-    const newUser: User = { ...user, id };
+    const newUser: User = { 
+      id,
+      username: user.username,
+      password: user.password || null,
+      isAdmin: user.isAdmin || false
+    };
     this.users.set(id, newUser);
     return newUser;
   }
@@ -113,7 +119,7 @@ export class MemStorage implements IStorage {
       startDate: reservationData.startDate,
       endDate: reservationData.endDate,
       numberOfGuests: reservationData.numberOfGuests,
-      notes: reservationData.notes,
+      notes: reservationData.notes || null,
       status: "pending",
       createdAt: now,
     };
@@ -139,7 +145,8 @@ export class MemStorage implements IStorage {
     const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
     const endOfYear = new Date(`${parseInt(year) + 1}-01-01T00:00:00.000Z`);
     
-    return [...this.reservations.values()].filter(reservation => {
+    const reservations = Array.from(this.reservations.values());
+    return reservations.filter(reservation => {
       const reservationDate = new Date(reservation.startDate);
       return reservationDate >= startOfYear && reservationDate < endOfYear;
     });
@@ -167,7 +174,8 @@ export class MemStorage implements IStorage {
     
     // Create a map of user IDs to usernames
     const usernames: Record<number, string> = {};
-    for (const user of this.users.values()) {
+    const users = Array.from(this.users.values());
+    for (const user of users) {
       usernames[user.id] = user.username;
     }
     
