@@ -26,14 +26,21 @@ export default function Header({ userType, activeTab, onTabChange }: HeaderProps
             <h1 className="text-xl font-medium text-foreground">Gestión de Reservas</h1>
           </div>
           <div className="flex items-center">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center">
-                <User className="text-muted-foreground h-5 w-5 mr-2" />
-                <span className="text-muted-foreground">
-                  {userType === 'admin' ? 'Admin' : 'Luis Glez'}
-                </span>
+            {userType === 'admin' ? (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center">
+                  <User className="text-muted-foreground h-5 w-5 mr-2" />
+                  <span className="text-muted-foreground">Admin</span>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center">
+                  <User className="text-muted-foreground h-5 w-5 mr-2" />
+                  <span className="text-muted-foreground">Luis Glez</span>
+                </div>
+              </div>
+            )}
             <Button
               variant="ghost"
               size="icon"

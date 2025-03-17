@@ -6,14 +6,17 @@ import { AuthProvider } from "@/contexts/auth-context";
 
 import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home";
+import AdminLogin from "@/components/admin-login";
 import AdminPage from "@/pages/admin";
 import UserPage from "@/pages/user";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={UserPage} />
+      <Route path="/" component={HomePage} />
+      <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/user" component={UserPage} />
       <Route component={NotFound} />
     </Switch>
   );
