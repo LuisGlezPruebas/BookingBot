@@ -74,10 +74,11 @@ export default function Calendar() {
     return date.toISOString().split('T')[0];
   };
   
-  // Convert date string to proper date object
+  // Convert date string to proper date object with UTC time at noon to avoid timezone issues
   const parseDate = (dateStr: string): Date => {
-    const [year, month, day] = dateStr.split('-').map(num => parseInt(num));
-    return new Date(year, month - 1, day);
+    // Create a date using the YYYY-MM-DD string directly to keep in UTC
+    const date = new Date(dateStr + "T12:00:00Z");
+    return date;
   };
   
   // Mutation for creating a reservation
@@ -178,20 +179,20 @@ export default function Calendar() {
       // Starting new selection, or resetting after complete selection
       setSelectedStartDate(dateStr);
       setSelectedEndDate(null);
-      setValue("startDate", new Date(dateStr).toISOString());
+      setValue("startDate", parseDate(dateStr).toISOString());
       setValue("endDate", "");
       setSelectionStep("salida");
     } else if (selectionStep === "salida") {
       // Adding end date (must be after start date)
-      if (new Date(dateStr) > new Date(selectedStartDate!)) {
+      if (parseDate(dateStr) > parseDate(selectedStartDate!)) {
         setSelectedEndDate(dateStr);
-        setValue("endDate", new Date(dateStr).toISOString());
+        setValue("endDate", parseDate(dateStr).toISOString());
         setSelectionStep("completo");
       } else {
         // If clicked date is before start date, start over with this as new start date
         setSelectedStartDate(dateStr);
         setSelectedEndDate(null);
-        setValue("startDate", new Date(dateStr).toISOString());
+        setValue("startDate", parseDate(dateStr).toISOString());
         setValue("endDate", "");
         setSelectionStep("salida");
       }
