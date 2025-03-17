@@ -3,6 +3,7 @@ import { Building, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useEffect } from "react";
 
 interface HeaderProps {
   userType: 'admin' | 'user';
@@ -12,6 +13,15 @@ interface HeaderProps {
 
 export default function Header({ userType, activeTab, onTabChange }: HeaderProps) {
   const { logout } = useAuth();
+  const [username, setUsername] = useState<string>("Usuario");
+
+  // Cargar el nombre del usuario desde localStorage
+  useEffect(() => {
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -37,7 +47,7 @@ export default function Header({ userType, activeTab, onTabChange }: HeaderProps
               <div className="flex items-center space-x-4">
                 <div className="flex items-center">
                   <User className="text-muted-foreground h-5 w-5 mr-2" />
-                  <span className="text-muted-foreground">Luis Glez</span>
+                  <span className="text-muted-foreground">{username}</span>
                 </div>
               </div>
             )}
