@@ -45,6 +45,7 @@ export default function Calendar() {
   const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth());
   const [selectedStartDate, setSelectedStartDate] = useState<string | null>(null);
   const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null);
+  const [selectionStep, setSelectionStep] = useState<"entrada" | "salida" | "completo">("entrada");
   const { toast } = useToast();
   
   const { data: calendarData, isLoading } = useQuery({
@@ -130,27 +131,27 @@ export default function Calendar() {
   const handleDateClick = (dateStr: string, status: string) => {
     if (status !== 'available') return;
     
-    if (!selectedStartDate) {
-      setSelectedStartDate(dateStr);
-      setValue("startDate", dateStr);
-    } else if (!selectedEndDate) {
-      // Ensure end date is after start date
-      if (new Date(dateStr) > new Date(selectedStartDate)) {
-        setSelectedEndDate(dateStr);
-        setValue("endDate", dateStr);
-      } else {
-        // If not, reset and set this as start date
-        setSelectedStartDate(dateStr);
-        setSelectedEndDate(null);
-        setValue("startDate", dateStr);
-        setValue("endDate", "");
-      }
-    } else {
-      // Reset selection and start new
+    if (selectionStep === "entrada" || (selectedStartDate && selectedEndDate)) {
+      // Starting new selection, or resetting after complete selection
       setSelectedStartDate(dateStr);
       setSelectedEndDate(null);
       setValue("startDate", dateStr);
       setValue("endDate", "");
+      setSelectionStep("salida");
+    } else if (selectionStep === "salida") {
+      // Adding end date (must be after start date)
+      if (new Date(dateStr) > new Date(selectedStartDate!)) {
+        setSelectedEndDate(dateStr);
+        setValue("endDate", dateStr);
+        setSelectionStep("completo");
+      } else {
+        // If clicked date is before start date, start over with this as new start date
+        setSelectedStartDate(dateStr);
+        setSelectedEndDate(null);
+        setValue("startDate", dateStr);
+        setValue("endDate", "");
+        setSelectionStep("salida");
+      }
     }
   };
   
@@ -165,6 +166,20 @@ export default function Calendar() {
   
   const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   const dayNames = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
+  
+  // Helper for formatting dates to DD/MM/YYYY
+  const formatDate = (dateStr: string): string => {
+    const date = new Date(dateStr);
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+  };
+  
+  // Helper to calculate nights between two dates
+  const calculateNights = (startDate: string, endDate: string): number => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
   
   // Build calendar data
   const buildCalendar = () => {
@@ -265,32 +280,32 @@ export default function Calendar() {
         {/* Calendar */}
         <Card className="lg:col-span-2 bg-card shadow-sm">
           <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <Button variant="ghost" className="p-2 text-muted-foreground hover:text-primary" onClick={goToPrevMonth}>
-                <ChevronLeft className="h-5 w-5" />
+            <div className="flex justify-between items-center mb-6">
+              <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={goToPrevMonth}>
+                <ChevronLeft className="h-4 w-4" />
+                <span>Anterior</span>
               </Button>
-              <h3 className="text-xl font-medium text-foreground">
+              <h3 className="text-xl font-semibold text-foreground">
                 {monthNames[currentMonth]} {year}
               </h3>
-              <Button variant="ghost" className="p-2 text-muted-foreground hover:text-primary" onClick={goToNextMonth}>
-                <ChevronRight className="h-5 w-5" />
+              <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={goToNextMonth}>
+                <span>Siguiente</span>
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
             
-            <div className="grid grid-cols-7 gap-2 mb-2">
+            <div className="grid grid-cols-7 gap-px mb-px border border-border rounded-md overflow-hidden">
               {dayNames.map((day, index) => (
-                <div key={index} className="text-center text-muted-foreground text-sm">
+                <div key={index} className="text-center py-2 bg-muted font-medium text-muted-foreground">
                   {day}
                 </div>
               ))}
-            </div>
             
-            <div className="grid grid-cols-7 gap-2">
               {calendarDays.map((day, index) => {
-                let cellClass = "calendar-cell text-center py-2 ";
+                let cellClass = "calendar-cell ";
                 
                 if (day.isPadding) {
-                  cellClass += "opacity-50 text-muted-foreground";
+                  cellClass += "text-muted-foreground bg-muted/30";
                 } else if (day.isSelected && day.status === 'available') {
                   cellClass += "bg-primary text-white";
                 } else if (day.status === 'available') {
@@ -313,19 +328,29 @@ export default function Calendar() {
               })}
             </div>
             
-            <div className="mt-6 flex items-center justify-center space-x-6">
-              <div className="flex items-center">
-                <div className="w-4 h-4 bg-[#42be65]/10 mr-2"></div>
-                <span className="text-sm text-muted-foreground">Disponible</span>
+            <div className="mt-4 p-3 border border-border rounded-md bg-muted/20">
+              <div className="flex items-center space-x-4 mb-2">
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-green-50 border border-border mr-2"></div>
+                  <span className="text-sm text-muted-foreground">Disponible</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-amber-500 mr-2"></div>
+                  <span className="text-sm text-muted-foreground">En revisión</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-red-500 mr-2"></div>
+                  <span className="text-sm text-muted-foreground">Ocupado</span>
+                </div>
               </div>
-              <div className="flex items-center">
-                <div className="w-4 h-4 bg-[#ff832b] mr-2"></div>
-                <span className="text-sm text-muted-foreground">En revisión</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-4 h-4 bg-[#fa4d56] mr-2"></div>
-                <span className="text-sm text-muted-foreground">Ocupado</span>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {selectionStep === "entrada" 
+                  ? "Selecciona las fechas de entrada y salida en el calendario." 
+                  : selectionStep === "salida" 
+                    ? `Fecha de entrada: ${formatDate(selectedStartDate!)}. Ahora selecciona la fecha de salida.`
+                    : `Estancia seleccionada: ${formatDate(selectedStartDate!)} - ${formatDate(selectedEndDate!)}`
+                }
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -333,81 +358,86 @@ export default function Calendar() {
         {/* Reservation Form */}
         <Card className="bg-card shadow-sm">
           <CardContent className="p-6">
-            <h3 className="text-lg font-medium text-foreground mb-4">Solicitar Reserva</h3>
+            <h3 className="text-lg font-medium text-foreground mb-4">Detalles de la reserva</h3>
             <form id="reservation-form" onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-4">
-                <Label htmlFor="user-name">Nombre</Label>
-                <Input id="user-name" value="Luis Glez" readOnly className="mt-2 bg-muted" />
+                <Label htmlFor="user-name">Miembro familiar</Label>
+                <Select defaultValue="Luis Glez">
+                  <SelectTrigger className="w-full mt-2">
+                    <SelectValue placeholder="Seleccionar miembro" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Luis Glez">Luis Glez</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
-              <div className="mb-4">
-                <Label htmlFor="check-in-date">Fecha de Entrada</Label>
-                <Input 
-                  id="check-in-date" 
-                  type="date" 
-                  className="mt-2" 
-                  {...register("startDate")}
-                />
+              <div className="space-y-1 mb-4">
+                <p className="text-sm text-muted-foreground mb-2">Entrada: {selectedStartDate ? formatDate(selectedStartDate) : 'No seleccionada'}</p>
+                <p className="text-sm text-muted-foreground mb-2">Salida: {selectedEndDate ? formatDate(selectedEndDate) : 'No seleccionada'}</p>
+                <p className="text-sm text-muted-foreground">Estancia: {(selectedStartDate && selectedEndDate) ? `${calculateNights(selectedStartDate, selectedEndDate)} noches` : 'No definida'}</p>
+                
+                <input type="hidden" {...register("startDate")} />
+                <input type="hidden" {...register("endDate")} />
+                
                 {errors.startDate && (
                   <p className="text-destructive text-sm mt-1">{errors.startDate.message}</p>
                 )}
-              </div>
-              
-              <div className="mb-4">
-                <Label htmlFor="check-out-date">Fecha de Salida</Label>
-                <Input 
-                  id="check-out-date" 
-                  type="date" 
-                  className="mt-2" 
-                  {...register("endDate")}
-                />
                 {errors.endDate && (
                   <p className="text-destructive text-sm mt-1">{errors.endDate.message}</p>
                 )}
               </div>
               
               <div className="mb-4">
-                <Label htmlFor="nights">Noches</Label>
-                <Input 
-                  id="nights" 
-                  type="number" 
-                  className="mt-2 bg-muted" 
-                  readOnly 
-                  {...register("nights", { valueAsNumber: true })}
-                />
-              </div>
-              
-              <div className="mb-4">
-                <Label htmlFor="guests">Número de Personas</Label>
-                <Input 
-                  id="guests" 
-                  type="number" 
-                  min="1" 
-                  max="10" 
-                  className="mt-2" 
-                  {...register("numberOfGuests", { valueAsNumber: true })}
-                />
+                <Label htmlFor="guests">Número de huéspedes</Label>
+                <Select defaultValue="2" 
+                  onValueChange={(val) => setValue("numberOfGuests", parseInt(val))}
+                >
+                  <SelectTrigger className="w-full mt-2">
+                    <SelectValue placeholder="Seleccionar número" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({length: 10}, (_, i) => i + 1).map(num => (
+                      <SelectItem key={num} value={num.toString()}>{num} {num === 1 ? 'persona' : 'personas'}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <input type="hidden" {...register("numberOfGuests", { valueAsNumber: true })} />
                 {errors.numberOfGuests && (
                   <p className="text-destructive text-sm mt-1">{errors.numberOfGuests.message}</p>
                 )}
               </div>
               
               <div className="mb-6">
-                <Label htmlFor="notes">Notas Adicionales</Label>
+                <Label htmlFor="notes">Notas adicionales</Label>
                 <Textarea 
                   id="notes" 
                   rows={3} 
+                  placeholder="Incluye cualquier información adicional para tu estancia"
                   className="mt-2" 
                   {...register("notes")}
                 />
               </div>
               
+              <div className="mt-8 mb-4">
+                <h4 className="text-base font-medium mb-2">Resumen</h4>
+                {!selectedStartDate || !selectedEndDate ? (
+                  <p className="text-sm text-muted-foreground">Fechas no seleccionadas</p>
+                ) : (
+                  <div className="text-sm">
+                    <p>Entrada: {formatDate(selectedStartDate)}</p>
+                    <p>Salida: {formatDate(selectedEndDate)}</p>
+                    <p>Estancia: {calculateNights(selectedStartDate, selectedEndDate)} noches</p>
+                  </div>
+                )}
+              </div>
+              
               <Button 
                 type="submit" 
                 className="w-full bg-primary text-primary-foreground"
-                disabled={createReservation.isPending}
+                disabled={createReservation.isPending || !selectedStartDate || !selectedEndDate}
               >
-                {createReservation.isPending ? "Enviando..." : "Solicitar Reserva"}
+                {createReservation.isPending ? "Enviando..." : "Reservar"}
               </Button>
             </form>
           </CardContent>
