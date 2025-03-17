@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { 
   Card, 
@@ -23,9 +23,25 @@ import { formatDate } from "@/lib/utils/date-utils";
 
 export default function MyReservations() {
   const [year, setYear] = useState<string>("2025");
+  const [userId, setUserId] = useState<number | null>(null);
+  const [username, setUsername] = useState<string>("");
+  
+  // Obtener el userId y el username del localStorage al cargar el componente
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    const storedUsername = localStorage.getItem("username");
+    if (storedUserId) {
+      setUserId(parseInt(storedUserId));
+    }
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
   
   const { data: userReservations, isLoading } = useQuery({
-    queryKey: [`/api/user/reservations/${year}`],
+    queryKey: [`/api/user/reservations/${year}`, userId],
+    // Solo activar la consulta cuando tengamos un userId válido
+    enabled: userId !== null,
   });
   
   const getNights = (startDate: string, endDate: string) => {

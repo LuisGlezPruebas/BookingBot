@@ -48,6 +48,24 @@ export default function Calendar() {
   const [selectionStep, setSelectionStep] = useState<"entrada" | "salida" | "completo">("entrada");
   const { toast } = useToast();
   
+  // Obtener el ID del usuario del localStorage
+  const [userId, setUserId] = useState<number>(2); // Default a Luis Glez (ID: 2)
+  const [username, setUsername] = useState<string>("Usuario");
+  
+  // Cargar el ID y nombre del usuario del localStorage al iniciar
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('userId');
+    const storedUsername = localStorage.getItem('username');
+    
+    if (storedUserId) {
+      setUserId(parseInt(storedUserId));
+    }
+    
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
+  
   const { data: calendarData = [], isLoading } = useQuery({
     queryKey: [`/api/user/calendar/${year}`],
   });
@@ -86,6 +104,7 @@ export default function Calendar() {
     mutationFn: async (data: any) => {
       // Ensure all fields are correctly formatted
       const formattedData = {
+        userId: userId, // Usar el ID del usuario obtenido del localStorage
         startDate: data.startDate,
         endDate: data.endDate,
         numberOfGuests: parseInt(data.numberOfGuests || "2"), // Ensure numberOfGuests is a number
@@ -471,14 +490,9 @@ export default function Calendar() {
             <form id="reservation-form" onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-4">
                 <Label htmlFor="user-name">Miembro familiar</Label>
-                <Select defaultValue="Luis Glez">
-                  <SelectTrigger className="w-full mt-2">
-                    <SelectValue placeholder="Seleccionar miembro" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Luis Glez">Luis Glez</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="text-sm font-medium text-primary mt-2 p-2 border rounded-md">
+                  {username}
+                </div>
               </div>
               
               <div className="space-y-1 mb-4">
