@@ -493,19 +493,6 @@ export default function Calendar() {
                 />
               </div>
               
-              <div className="mt-8 mb-4">
-                <h4 className="text-base font-medium mb-2">Resumen</h4>
-                {!selectedStartDate || !selectedEndDate ? (
-                  <p className="text-sm text-muted-foreground">Selecciona fechas para ver el resumen</p>
-                ) : (
-                  <div className="text-sm">
-                    <p>Entrada: {formatDate(selectedStartDate)}</p>
-                    <p>Salida: {formatDate(selectedEndDate)}</p>
-                    <p>Estancia: {calculateNights(selectedStartDate, selectedEndDate)} noches</p>
-                  </div>
-                )}
-              </div>
-              
               <Button 
                 type="submit" 
                 className="w-full bg-primary text-primary-foreground"
