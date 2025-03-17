@@ -11,7 +11,12 @@ export class UserService {
    */
   private static userEmails: Record<number, string> = {
     1: 'luisglez.pruebas@gmail.com', // Admin
-    2: 'luisgonzalezterol@gmail.com'  // Luis Glez
+    2: 'luisgonzalezterol@gmail.com', // Luis Glez
+    3: 'dgonzalezllobet@gmail.com', // David Glez
+    4: 'luisglezllobet@gmail.com', // Luis Glez Llobet
+    5: 'martina.glez.yudego@gmail.com', // Martina
+    6: 'jgterol@gmail.com', // Juan
+    7: 'mtllobeti@gmail.com' // Mº Teresa
   };
   
   /**

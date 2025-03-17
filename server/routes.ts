@@ -9,6 +9,34 @@ import { UserService } from "./services/user.service";
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
+  // Get all users
+  app.get("/api/users", async (_req: Request, res: Response) => {
+    try {
+      // Obtener todos los usuarios utilizando los IDs predefinidos (del 1 al 7)
+      const users = await Promise.all(
+        Array.from({ length: 7 }, (_, i) => i + 1).map(async (id) => {
+          const user = await storage.getUser(id);
+          if (user) {
+            return {
+              id: user.id,
+              username: user.username,
+              isAdmin: user.isAdmin
+            };
+          }
+          return null;
+        })
+      );
+
+      // Filtrar null values (si algún usuario no existe)
+      const validUsers = users.filter(user => user !== null);
+      
+      res.json(validUsers);
+    } catch (error) {
+      console.error("Error getting users:", error);
+      res.status(500).json({ message: "Error getting users" });
+    }
+  });
+
   // === USER ROUTES ===
   
   // Get calendar data for a specific year
@@ -26,8 +54,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/user/reservations/:year", async (req: Request, res: Response) => {
     try {
       const year = req.params.year;
-      // Hardcoded user ID for Luis Glez (ID: 2)
-      const userId = 2;
+      // Obtener el userId del parámetro o usar el default (2: Luis Glez)
+      const userId = parseInt(req.query.userId as string) || 2;
       const reservations = await storage.getUserReservationsByYear(userId, year);
       res.json(reservations);
     } catch (error) {
@@ -81,7 +109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const validatedData = {
-        userId: 2, // Hardcoded user ID for Luis Glez (ID: 2)
+        userId: parseInt(req.body.userId) || 2, // Obtener el ID del usuario desde el body o defaultear a Luis Glez (ID: 2)
         startDate: startDate,
         endDate: endDate,
         numberOfGuests: parseInt(req.body.numberOfGuests) || 2,

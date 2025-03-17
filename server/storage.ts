@@ -41,6 +41,11 @@ export class MemStorage implements IStorage {
     // Initialize with default users
     this.createUser({ username: "admin", password: "123", isAdmin: true });
     this.createUser({ username: "Luis Glez", password: "", isAdmin: false });
+    this.createUser({ username: "David Glez", password: "", isAdmin: false });
+    this.createUser({ username: "Luis Glez Llobet", password: "", isAdmin: false });
+    this.createUser({ username: "Martina", password: "", isAdmin: false });
+    this.createUser({ username: "Juan", password: "", isAdmin: false });
+    this.createUser({ username: "Mº Teresa", password: "", isAdmin: false });
     
     // No sample reservations - starting with a clean database
   }
