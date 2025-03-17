@@ -124,27 +124,28 @@ export default function Calendar() {
   };
   
   // Calendar date selection
-  const handleDateClick = (dateStr: string, status: string) => {
-    if (status !== 'available') return;
+  const handleDateClick = (dateStr: string, status: string, isPastDate: boolean) => {
+    // Don't allow selection of unavailable or past dates
+    if (status !== 'available' || isPastDate) return;
     
     if (selectionStep === "entrada" || (selectedStartDate && selectedEndDate)) {
       // Starting new selection, or resetting after complete selection
       setSelectedStartDate(dateStr);
       setSelectedEndDate(null);
-      setValue("startDate", dateStr);
+      setValue("startDate", new Date(dateStr).toISOString());
       setValue("endDate", "");
       setSelectionStep("salida");
     } else if (selectionStep === "salida") {
       // Adding end date (must be after start date)
       if (new Date(dateStr) > new Date(selectedStartDate!)) {
         setSelectedEndDate(dateStr);
-        setValue("endDate", dateStr);
+        setValue("endDate", new Date(dateStr).toISOString());
         setSelectionStep("completo");
       } else {
         // If clicked date is before start date, start over with this as new start date
         setSelectedStartDate(dateStr);
         setSelectedEndDate(null);
-        setValue("startDate", dateStr);
+        setValue("startDate", new Date(dateStr).toISOString());
         setValue("endDate", "");
         setSelectionStep("salida");
       }
@@ -204,19 +205,28 @@ export default function Calendar() {
     // Current month days with status
     for (let i = 1; i <= daysInMonth; i++) {
       const dateStr = `${yearNum}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+      const currentDate = new Date(dateStr);
       
-      let status = 'available';
-      // Check in calendarData for status, defaulting to available
-      if (calendarData) {
-        const dateStatus = calendarData.find((d: any) => d.date === dateStr)?.status;
-        if (dateStatus) status = dateStatus;
+      // Determine if date is in the past
+      const isPastDate = currentDate < today;
+      
+      let status = isPastDate ? 'past' : 'available';
+      
+      // Check in calendarData for status, but only override if not a past date
+      if (!isPastDate && Array.isArray(calendarData)) {
+        const dateEntry = calendarData.find((d: any) => d.date === dateStr);
+        if (dateEntry && dateEntry.status) {
+          status = dateEntry.status;
+        }
       }
       
       // Check if date is selected
       let isSelected = false;
+      let isInRange = false;
+      
       if (selectedStartDate && selectedEndDate) {
-        isSelected = dateStr === selectedStartDate || dateStr === selectedEndDate ||
-                    (dateStr > selectedStartDate && dateStr < selectedEndDate);
+        isSelected = dateStr === selectedStartDate || dateStr === selectedEndDate;
+        isInRange = dateStr > selectedStartDate && dateStr < selectedEndDate;
       } else if (selectedStartDate) {
         isSelected = dateStr === selectedStartDate;
       }
@@ -228,7 +238,9 @@ export default function Calendar() {
         isPadding: false,
         status,
         dateStr,
-        isSelected
+        isSelected,
+        isInRange,
+        isPastDate
       });
     }
     
@@ -281,40 +293,40 @@ export default function Calendar() {
         {/* Calendar */}
         <Card className="lg:col-span-2 bg-card shadow-sm">
           <CardContent className="p-6">
-            <div className="mb-4">
-              <h3 className="text-base font-semibold text-foreground mb-2">Calendario de disponibilidad</h3>
-              <div className="flex justify-between items-center mb-2">
-                <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={goToPrevMonth}>
-                  <ChevronLeft className="h-4 w-4" />
-                  <span>Anterior</span>
-                </Button>
-                <h3 className="text-lg font-medium text-foreground">
-                  {monthNames[currentMonth]} {year}
-                </h3>
-                <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={goToNextMonth}>
-                  <span>Siguiente</span>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+            <div className="carbon-calendar-header mb-4">
+              <Button variant="ghost" size="sm" className="text-white" onClick={goToPrevMonth}>
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              <h3 className="text-xl font-medium">
+                {monthNames[currentMonth]} {year}
+              </h3>
+              <Button variant="ghost" size="sm" className="text-white" onClick={goToNextMonth}>
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-white border border-blue-700 mr-1"></div>
+                <span className="text-xs text-muted-foreground">Disponible</span>
               </div>
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-green-50 border border-border mr-1"></div>
-                  <span className="text-xs text-muted-foreground">Disponible</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-amber-500 mr-1"></div>
-                  <span className="text-xs text-muted-foreground">En revisión</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-red-500 mr-1"></div>
-                  <span className="text-xs text-muted-foreground">Ocupado</span>
-                </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-amber-500 mr-1"></div>
+                <span className="text-xs text-muted-foreground">En revisión</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-red-500 mr-1"></div>
+                <span className="text-xs text-muted-foreground">Ocupado</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-gray-200 mr-1"></div>
+                <span className="text-xs text-muted-foreground">Pasado</span>
               </div>
             </div>
             
-            <div className="grid grid-cols-7 gap-px mb-px border border-border rounded-md overflow-hidden">
+            <div className="carbon-calendar-grid border border-border rounded-md overflow-hidden">
               {dayNames.map((day, index) => (
-                <div key={index} className="text-center py-2 bg-muted font-medium text-muted-foreground">
+                <div key={index} className="carbon-calendar-day-header">
                   {day}
                 </div>
               ))}
@@ -324,8 +336,12 @@ export default function Calendar() {
                 
                 if (day.isPadding) {
                   cellClass += "text-muted-foreground bg-muted/30";
-                } else if (day.isSelected && day.status === 'available') {
-                  cellClass += "bg-primary text-white";
+                } else if (day.isPastDate) {
+                  cellClass += "calendar-day-past";
+                } else if (day.isSelected) {
+                  cellClass += "calendar-day-selected";
+                } else if (day.isInRange) {
+                  cellClass += "calendar-day-in-range";
                 } else if (day.status === 'available') {
                   cellClass += "calendar-day-available";
                 } else if (day.status === 'pending') {
@@ -338,7 +354,7 @@ export default function Calendar() {
                   <div
                     key={index}
                     className={cellClass}
-                    onClick={() => !day.isPadding && handleDateClick(day.dateStr, day.status)}
+                    onClick={() => !day.isPadding && handleDateClick(day.dateStr || '', day.status || '', Boolean(day.isPastDate))}
                   >
                     {day.day}
                   </div>
