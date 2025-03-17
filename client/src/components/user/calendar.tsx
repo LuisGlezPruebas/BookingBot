@@ -41,7 +41,7 @@ const reservationSchema = z.object({
 type ReservationFormValues = z.infer<typeof reservationSchema>;
 
 export default function Calendar() {
-  const [year, setYear] = useState<string>("2024");
+  const [year, setYear] = useState<string>("2025");
   const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth());
   const [selectedStartDate, setSelectedStartDate] = useState<string | null>(null);
   const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null);
@@ -255,6 +255,7 @@ export default function Calendar() {
             <SelectContent>
               <SelectItem value="2023">2023</SelectItem>
               <SelectItem value="2024">2024</SelectItem>
+              <SelectItem value="2025">2025</SelectItem>
             </SelectContent>
           </Select>
         </div>

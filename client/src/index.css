@@ -59,7 +59,7 @@
 
 @layer components {
   .calendar-cell {
-    @apply w-10 h-10 flex items-center justify-center text-sm;
+    @apply w-10 h-10 flex items-center justify-center text-base font-medium;
   }
   
   .reservation-status-available {
