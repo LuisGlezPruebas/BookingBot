@@ -257,22 +257,27 @@ export default function Calendar() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 py-6 flex-grow">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-medium text-foreground">Calendario de Reservas</h2>
-        <div className="flex items-center">
-          <label htmlFor="calendar-year" className="mr-2 text-muted-foreground">
-            Año:
-          </label>
-          <Select value={year} onValueChange={setYear}>
-            <SelectTrigger className="w-[100px]">
-              <SelectValue placeholder="Año" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="2023">2023</SelectItem>
-              <SelectItem value="2024">2024</SelectItem>
-              <SelectItem value="2025">2025</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Reserva tu estancia</h2>
+            <p className="text-muted-foreground mt-1">Consulta disponibilidad y reserva tu escapada a Tamariu en la Costa Brava.</p>
+          </div>
+          <div className="flex items-center">
+            <label htmlFor="calendar-year" className="mr-2 text-muted-foreground">
+              Año:
+            </label>
+            <Select value={year} onValueChange={setYear}>
+              <SelectTrigger className="w-[100px]">
+                <SelectValue placeholder="Año" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2023">2023</SelectItem>
+                <SelectItem value="2024">2024</SelectItem>
+                <SelectItem value="2025">2025</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -280,18 +285,35 @@ export default function Calendar() {
         {/* Calendar */}
         <Card className="lg:col-span-2 bg-card shadow-sm">
           <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={goToPrevMonth}>
-                <ChevronLeft className="h-4 w-4" />
-                <span>Anterior</span>
-              </Button>
-              <h3 className="text-xl font-semibold text-foreground">
-                {monthNames[currentMonth]} {year}
-              </h3>
-              <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={goToNextMonth}>
-                <span>Siguiente</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+            <div className="mb-4">
+              <h3 className="text-base font-semibold text-foreground mb-2">Calendario de disponibilidad</h3>
+              <div className="flex justify-between items-center mb-2">
+                <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={goToPrevMonth}>
+                  <ChevronLeft className="h-4 w-4" />
+                  <span>Anterior</span>
+                </Button>
+                <h3 className="text-lg font-medium text-foreground">
+                  {monthNames[currentMonth]} {year}
+                </h3>
+                <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={goToNextMonth}>
+                  <span>Siguiente</span>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 bg-green-50 border border-border mr-1"></div>
+                  <span className="text-xs text-muted-foreground">Disponible</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 bg-amber-500 mr-1"></div>
+                  <span className="text-xs text-muted-foreground">En revisión</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 bg-red-500 mr-1"></div>
+                  <span className="text-xs text-muted-foreground">Ocupado</span>
+                </div>
+              </div>
             </div>
             
             <div className="grid grid-cols-7 gap-px mb-px border border-border rounded-md overflow-hidden">
@@ -328,27 +350,13 @@ export default function Calendar() {
               })}
             </div>
             
-            <div className="mt-4 p-3 border border-border rounded-md bg-muted/20">
-              <div className="flex items-center space-x-4 mb-2">
-                <div className="flex items-center">
-                  <div className="w-4 h-4 bg-green-50 border border-border mr-2"></div>
-                  <span className="text-sm text-muted-foreground">Disponible</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 bg-amber-500 mr-2"></div>
-                  <span className="text-sm text-muted-foreground">En revisión</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 bg-red-500 mr-2"></div>
-                  <span className="text-sm text-muted-foreground">Ocupado</span>
-                </div>
-              </div>
+            <div className="mt-4">
               <p className="text-sm text-muted-foreground">
                 {selectionStep === "entrada" 
                   ? "Selecciona las fechas de entrada y salida en el calendario." 
                   : selectionStep === "salida" 
                     ? `Fecha de entrada: ${formatDate(selectedStartDate!)}. Ahora selecciona la fecha de salida.`
-                    : `Estancia seleccionada: ${formatDate(selectedStartDate!)} - ${formatDate(selectedEndDate!)}`
+                    : `Selecciona las fechas de entrada y salida en el calendario.`
                 }
               </p>
             </div>
