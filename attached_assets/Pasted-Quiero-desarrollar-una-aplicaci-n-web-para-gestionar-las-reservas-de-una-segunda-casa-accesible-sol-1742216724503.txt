@@ -1,0 +1,55 @@
+Quiero desarrollar una aplicación web para gestionar las reservas de una segunda casa, accesible solo para un grupo limitado de personas.
+Estructura de la Aplicación
+Pantalla de Inicio
+* Un menú de selección de usuario con dos opciones en esta primera versión (V1):
+    * Admin: Usuario encargado de gestionar las reservas.
+    * Luis Glez: Representación de los usuarios que pueden solicitar reservas.
+Perfil del Administrador (Admin)
+* Acceso con Contraseña: Para entrar, el usuario debe ingresar la contraseña "123".
+* Interfaz principal con dos secciones en la barra de navegación:
+1. Dashboard
+* Visualización de estadísticas anuales de las reservas, incluyendo:
+    * Número total de reservas.
+    * Días ocupados.
+    * Miembro más frecuente.
+    * Listado de reservas.
+    * Estadísticas de noches reservadas por mes y por usuario.
+    * Ocupación mensual de la casa.
+* Filtro anual para cambiar de año y ver datos históricos.
+2. Gestión de Reservas
+* Tabla de Solicitudes de Reservas con la siguiente información:
+    * Miembro que solicita la reserva.
+    * Fechas de la reserva.
+    * Número de personas.
+    * Notas adicionales.
+    * Dos botones: Aceptar o Rechazar.
+* Historial de Reservas, mostrando tanto las aceptadas como las rechazadas.
+* Una vez que una reserva es aceptada o rechazada, debe trasladarse automáticamente al historial.
+Perfil del Usuario (Luis Glez)
+Una vez seleccionado el perfil, el usuario accede a la interfaz principal con dos secciones:
+1. Reservas
+* Calendario interactivo anual, donde el usuario puede navegar entre meses y visualizar las reservas del año actual.
+    * Fechas disponibles → Verde pastel claro.
+    * Fechas en revisión (pendientes de aprobación) → Naranja.
+    * Fechas ocupadas → Rojo.
+* Formulario de solicitud de reserva a la derecha del calendario con los siguientes campos:
+    * Nombre del usuario (por defecto, el elegido previamente en el inicio de sesión).
+    * Fechas de la reserva (seleccionadas en el calendario).
+    * Número de noches.
+    * Número de personas (campo obligatorio, máximo 10 personas).
+    * Notas adicionales (opcional).
+    * Botón Reservar.
+2. Mis Reservas
+* Tabla con el historial de reservas anuales realizadas por el usuario con la siguiente información:
+    * Nombre del solicitante.
+    * Fechas de la reserva.
+    * Número de personas.
+    * Notas adicionales.
+    * Estado de la reserva con color indicador:
+        * Naranja → En revisión.
+        * Verde → Aceptada.
+        * Rojo → Rechazada.
+* Filtro anual para que el usuario pueda consultar sus reservas de años anteriores.
+Diseño y Estética
+* Estilo moderno y minimalista, basado en Carbon Design system https://carbondesignsystem.com/
+* La fuente que sea IBM Plex Sans
