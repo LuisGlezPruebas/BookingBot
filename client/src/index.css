@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 96%;
+    --foreground: 0 0% 9%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+    
+    --primary: 220 98% 52%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 0 0% 44%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 55%;
+    
+    --accent: 220 98% 52%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 358 75% 64%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 220 98% 52%;
+    
+    --radius: 0.25rem;
+
+    --chart-1: 220 98% 52%;
+    --chart-2: 0 0% 44%;
+    --chart-3: 358 75% 64%;
+    --chart-4: 138 64% 51%;
+    --chart-5: 22 100% 58%;
+    
+    /* Calendar status colors */
+    --available: 142 64% 38%;
+    --pending: 30 100% 58%;
+    --occupied: 358 75% 64%;
+  }
+  
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-ibm-plex antialiased;
+  }
+}
+
+@layer components {
+  .calendar-cell {
+    @apply w-10 h-10 flex items-center justify-center text-sm;
+  }
+  
+  .reservation-status-available {
+    @apply bg-available/10 text-available;
+  }
+  
+  .reservation-status-pending {
+    @apply bg-pending/10 text-pending;
+  }
+  
+  .reservation-status-rejected {
+    @apply bg-occupied/10 text-occupied;
+  }
+  
+  .calendar-day-available {
+    @apply bg-available/10 hover:bg-available/20 cursor-pointer;
+  }
+  
+  .calendar-day-pending {
+    @apply bg-pending text-white cursor-not-allowed;
+  }
+  
+  .calendar-day-occupied {
+    @apply bg-occupied text-white cursor-not-allowed;
+  }
+
+  .chart-bar {
+    @apply bg-primary transition-all duration-300 ease-in-out;
+  }
+}
+
+@layer utilities {
+  .font-ibm-plex {
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+}
