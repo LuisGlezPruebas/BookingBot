@@ -48,7 +48,7 @@ export default function Calendar() {
   const [selectionStep, setSelectionStep] = useState<"entrada" | "salida" | "completo">("entrada");
   const { toast } = useToast();
   
-  const { data: calendarData, isLoading } = useQuery({
+  const { data: calendarData = [], isLoading } = useQuery({
     queryKey: [`/api/user/calendar/${year}`],
   });
   
@@ -57,7 +57,7 @@ export default function Calendar() {
     defaultValues: {
       startDate: '',
       endDate: '',
-      numberOfGuests: 1,
+      numberOfGuests: 2,
       notes: ''
     }
   });
@@ -65,18 +65,14 @@ export default function Calendar() {
   const watchStartDate = watch("startDate");
   const watchEndDate = watch("endDate");
   
-  // Update nights calculation when dates change
-  useEffect(() => {
-    if (watchStartDate && watchEndDate) {
-      const start = new Date(watchStartDate);
-      const end = new Date(watchEndDate);
-      if (end > start) {
-        const diffTime = Math.abs(end.getTime() - start.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        setValue("nights", diffDays);
-      }
-    }
-  }, [watchStartDate, watchEndDate, setValue]);
+  // Current date for blocking past dates
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to start of day
+  
+  // Format date to ISO string (YYYY-MM-DD)
+  const formatDateToISO = (date: Date): string => {
+    return date.toISOString().split('T')[0];
+  };
   
   // Mutation for creating a reservation
   const createReservation = useMutation({
