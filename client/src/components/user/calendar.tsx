@@ -422,11 +422,7 @@ export default function Calendar() {
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-3 h-3 rounded-sm calendar-day-selected"></div>
-                  <span className="text-xs">Seleccionado</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded-sm calendar-day-in-range"></div>
-                  <span className="text-xs">En rango</span>
+                  <span className="text-xs">Seleccionado/En rango</span>
                 </div>
               </div>
             </div>
@@ -451,9 +447,9 @@ export default function Calendar() {
               </div>
               
               <div className="space-y-1 mb-4">
-                <p className="text-sm text-muted-foreground mb-2">Entrada: {selectedStartDate ? formatDate(selectedStartDate) : 'No seleccionada'}</p>
-                <p className="text-sm text-muted-foreground mb-2">Salida: {selectedEndDate ? formatDate(selectedEndDate) : 'No seleccionada'}</p>
-                <p className="text-sm text-muted-foreground">Estancia: {(selectedStartDate && selectedEndDate) ? `${calculateNights(selectedStartDate, selectedEndDate)} noches` : 'No definida'}</p>
+                <p className="text-sm text-muted-foreground mb-2">Entrada: {selectedStartDate ? formatDate(selectedStartDate) : 'Seleccionar'}</p>
+                <p className="text-sm text-muted-foreground mb-2">Salida: {selectedEndDate ? formatDate(selectedEndDate) : 'Seleccionar'}</p>
+                <p className="text-sm text-muted-foreground">Estancia: {(selectedStartDate && selectedEndDate) ? `${calculateNights(selectedStartDate, selectedEndDate)} noches` : 'Pendiente'}</p>
                 
                 <input type="hidden" {...register("startDate")} />
                 <input type="hidden" {...register("endDate")} />
@@ -500,7 +496,7 @@ export default function Calendar() {
               <div className="mt-8 mb-4">
                 <h4 className="text-base font-medium mb-2">Resumen</h4>
                 {!selectedStartDate || !selectedEndDate ? (
-                  <p className="text-sm text-muted-foreground">Fechas no seleccionadas</p>
+                  <p className="text-sm text-muted-foreground">Selecciona fechas para ver el resumen</p>
                 ) : (
                   <div className="text-sm">
                     <p>Entrada: {formatDate(selectedStartDate)}</p>
