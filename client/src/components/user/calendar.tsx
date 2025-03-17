@@ -67,7 +67,8 @@ export default function Calendar() {
   }, []);
   
   const { data: calendarData = [], isLoading } = useQuery({
-    queryKey: [`/api/user/calendar/${year}`],
+    queryKey: [`/api/user/calendar/${year}`, userId],
+    enabled: userId !== null,
   });
   
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<ReservationFormValues>({
@@ -116,8 +117,8 @@ export default function Calendar() {
       return await apiRequest("POST", "/api/user/reservations", formattedData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/user/calendar/${year}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/user/reservations/${year}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/user/calendar/${year}`, userId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/user/reservations/${year}`, userId] });
       toast({
         title: "Solicitud enviada",
         description: "Tu solicitud de reserva ha sido enviada con éxito y está pendiente de aprobación.",

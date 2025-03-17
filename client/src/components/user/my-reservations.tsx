@@ -51,7 +51,7 @@ export default function MyReservations() {
     );
   };
 
-  const reservations = userReservations || [];
+  const reservations = Array.isArray(userReservations) ? userReservations : [];
 
   return (
     <div className="container mx-auto px-4 sm:px-6 py-6 flex-grow">
