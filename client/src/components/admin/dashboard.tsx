@@ -173,63 +173,7 @@ export default function AdminDashboard() {
       </div>
       
       {/* 4. Gráficos de Estadísticas */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Monthly Reservations Chart */}
-        <Card className="bg-card shadow-sm">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Mes</h3>
-            <div className="h-64 flex flex-col relative">
-              {/* Contenedor principal */}
-              <div className="flex w-full h-full">
-                {/* Eje Y con números */}
-                <div className="flex flex-col justify-between w-10 pr-2">
-                  <span className="text-xs text-muted-foreground">31</span>
-                  <span className="text-xs text-muted-foreground">15</span>
-                  <span className="text-xs text-muted-foreground">0</span>
-                </div>
-                
-                {/* Área del gráfico */}
-                <div className="flex-grow relative">
-                  {/* Líneas de guía horizontales */}
-                  <div className="absolute w-full border-t border-dashed border-muted-foreground/20 top-0"></div>
-                  <div className="absolute w-full border-t border-dashed border-muted-foreground/20 top-1/2"></div>
-                  <div className="absolute w-full border-t border-dashed border-muted-foreground/20 bottom-0"></div>
-                  
-                  {/* Barras del gráfico */}
-                  <div className="h-full flex items-end justify-between">
-                    {Array(12).fill(0).map((_, index) => {
-                      const monthData = statsData.reservationsByMonth.find((m: any) => m.month === index + 1);
-                      const monthCount = monthData?.count || 0;
-                      const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-                      
-                      // Cálculo de altura: 0 = 0%, 15 = 50%, 31 = 100%
-                      const height = `${Math.min(100, (monthCount / 31) * 100)}%`;
-                      
-                      return (
-                        <div key={index} className="flex flex-col items-center w-full mx-1">
-                          <div className="h-full w-full flex flex-col justify-end relative">
-                            {monthCount > 0 && (
-                              <div className="absolute -top-6 text-xs font-semibold">
-                                {monthCount}
-                              </div>
-                            )}
-                            <div 
-                              className={`w-full bg-primary rounded-t-sm transition-all duration-300 ${monthCount > 0 ? 'opacity-100' : 'opacity-0'}`} 
-                              style={{ height }}
-                              title={`${monthCount} noches en ${monthNames[index]}`}
-                            ></div>
-                          </div>
-                          <span className="text-xs text-muted-foreground mt-1">{monthNames[index]}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
+      <div className="grid grid-cols-1 gap-6">
         {/* User Stats Chart */}
         <Card className="bg-card shadow-sm">
           <CardContent className="p-6">
