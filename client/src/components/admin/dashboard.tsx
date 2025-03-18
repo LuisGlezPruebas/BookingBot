@@ -206,28 +206,53 @@ export default function AdminDashboard() {
         {/* Monthly Reservations Chart */}
         <Card className="bg-card shadow-sm">
           <CardContent className="p-6">
-            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Mes (Aprobadas)</h3>
-            <div className="h-64 flex items-end justify-between space-x-2">
-              {Array(12).fill(0).map((_, index) => {
-                const monthData = statsData.reservationsByMonth.find(m => m.month === index + 1);
-                const monthCount = monthData?.count || 0;
-                const maxCount = Math.max(...statsData.reservationsByMonth.map(m => m.count), 1);
-                const height = monthCount > 0 ? `${(monthCount / maxCount) * 100}%` : '0%';
-                const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Mes</h3>
+            <div className="h-64 flex flex-col relative">
+              {/* Eje Y con números de días */}
+              <div className="absolute left-0 right-0 top-0 h-full flex flex-col justify-between">
+                <div className="flex items-center h-6">
+                  <span className="text-xs text-muted-foreground mr-2">30</span>
+                  <div className="flex-grow border-t border-dashed border-muted-foreground/20"></div>
+                </div>
+                <div className="flex items-center h-6">
+                  <span className="text-xs text-muted-foreground mr-2">15</span>
+                  <div className="flex-grow border-t border-dashed border-muted-foreground/20"></div>
+                </div>
+                <div className="flex items-center h-6">
+                  <span className="text-xs text-muted-foreground mr-2">0</span>
+                  <div className="flex-grow border-t border-dashed border-muted-foreground/20"></div>
+                </div>
+              </div>
+              
+              {/* Área del gráfico */}
+              <div className="relative flex-grow mt-3 ml-8">
                 
-                return (
-                  <div key={index} className="flex flex-col items-center flex-1 relative">
-                    <div className="absolute top-0 -mt-6 text-xs opacity-75">
-                      {monthCount > 0 ? monthCount : ''}
-                    </div>
-                    <div 
-                      className={`chart-bar w-full bg-primary rounded-t-sm transition-all duration-500 ${monthCount > 0 ? 'opacity-100' : 'opacity-0'}`} 
-                      style={{ height }}
-                    ></div>
-                    <span className="text-xs text-muted-foreground mt-1">{monthNames[index]}</span>
-                  </div>
-                );
-              })}
+                {/* Gráfico de barras */}
+                <div className="h-full flex items-end justify-between space-x-2">
+                  {Array(12).fill(0).map((_, index) => {
+                    const monthData = statsData.reservationsByMonth.find(m => m.month === index + 1);
+                    const monthCount = monthData?.count || 0;
+                    // Usar 30 como valor máximo para el eje Y (aproximadamente un mes)
+                    const maxDays = 30;
+                    const height = monthCount > 0 ? `${Math.min(100, (monthCount / maxDays) * 100)}%` : '0%';
+                    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                    
+                    return (
+                      <div key={index} className="flex flex-col items-center flex-1 relative">
+                        <div className="absolute top-0 -mt-6 text-xs font-semibold">
+                          {monthCount > 0 ? monthCount : ''}
+                        </div>
+                        <div 
+                          className={`chart-bar w-full bg-primary rounded-t-sm transition-all duration-500 ${monthCount > 0 ? 'opacity-100' : 'opacity-0'}`} 
+                          style={{ height }}
+                          title={`${monthCount} noches en ${monthNames[index]}`}
+                        ></div>
+                        <span className="text-xs text-muted-foreground mt-1">{monthNames[index]}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -235,7 +260,7 @@ export default function AdminDashboard() {
         {/* User Stats Chart */}
         <Card className="bg-card shadow-sm">
           <CardContent className="p-6">
-            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Usuario (Aprobadas)</h3>
+            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Usuario</h3>
             <div className="h-64 flex items-center justify-center">
               <div className="w-full max-w-md">
                 {statsData.reservationsByUser.map((user, index: number) => {
