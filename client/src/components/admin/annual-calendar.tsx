@@ -4,7 +4,6 @@ import { getDaysInMonth, isPastDate } from "@/lib/utils/date-utils";
 
 // Colores para usuarios (en formato tailwind) - Colores llamativos y distintivos
 const userColorMap: Record<number, string> = {
-  1: "bg-slate-600 text-white", // Admin
   2: "bg-red-500 text-white", // Luis Glez
   3: "bg-blue-600 text-white", // David Glez
   4: "bg-emerald-500 text-white", // Luis Glez Llobet
@@ -131,9 +130,8 @@ export default function AnnualCalendar({ year, calendarData, reservations }: Ann
     const approvedReservations = reservations.filter((r: any) => r.status === 'approved');
     console.log("Reservas aprobadas:", approvedReservations);
     
-    // Predefinir todos los usuarios conocidos (IDs 1-6 en storage.ts)
+    // Predefinir todos los usuarios conocidos (excepto Admin)
     const defaultUsernames: Record<number, string> = {
-      1: "Admin",
       2: "Luis Glez",
       3: "David Glez",
       4: "Luis Glez Llobet",
