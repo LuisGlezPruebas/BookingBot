@@ -5,6 +5,13 @@ import { DayPicker } from "react-day-picker"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
+// Define la localización en español
+const es = {
+  months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+  weekdays: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+  weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+};
+
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
 function Calendar({
@@ -15,6 +22,8 @@ function Calendar({
 }: CalendarProps) {
   return (
     <DayPicker
+      locale={es}
+      weekStartsOn={1}
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
       classNames={{
