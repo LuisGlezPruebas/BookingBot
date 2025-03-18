@@ -100,7 +100,7 @@
   }
 
   .chart-bar {
-    @apply bg-primary transition-all duration-300 ease-in-out;
+    @apply bg-primary transition-all duration-300 ease-in-out opacity-80 hover:opacity-100 min-h-[3px];
   }
   
   /* Estilos específicos para react-day-picker */

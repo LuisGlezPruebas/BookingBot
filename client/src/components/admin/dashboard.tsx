@@ -212,12 +212,18 @@ export default function AdminDashboard() {
                 const monthData = statsData.reservationsByMonth.find(m => m.month === index + 1);
                 const monthCount = monthData?.count || 0;
                 const maxCount = Math.max(...statsData.reservationsByMonth.map(m => m.count), 1);
-                const height = `${(monthCount / maxCount) * 100}%`;
+                const height = monthCount > 0 ? `${(monthCount / maxCount) * 100}%` : '0%';
                 const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
                 
                 return (
-                  <div key={index} className="flex flex-col items-center flex-1">
-                    <div className="chart-bar w-full" style={{ height }}></div>
+                  <div key={index} className="flex flex-col items-center flex-1 relative">
+                    <div className="absolute top-0 -mt-6 text-xs opacity-75">
+                      {monthCount > 0 ? monthCount : ''}
+                    </div>
+                    <div 
+                      className={`chart-bar w-full bg-primary rounded-t-sm transition-all duration-500 ${monthCount > 0 ? 'opacity-100' : 'opacity-0'}`} 
+                      style={{ height }}
+                    ></div>
                     <span className="text-xs text-muted-foreground mt-1">{monthNames[index]}</span>
                   </div>
                 );

@@ -24,10 +24,22 @@ function calculateStats(reservations: Reservation[], usernames: Record<number, s
     }
   });
   
-  // Calculate most frequent user
+  // Calculate most frequent user and number of days per user
   const userCounts: Record<number, number> = {};
+  
   reservations.forEach(reservation => {
-    userCounts[reservation.userId] = (userCounts[reservation.userId] || 0) + 1;
+    const start = new Date(reservation.startDate);
+    const end = new Date(reservation.endDate);
+    const userId = reservation.userId;
+    let nightCount = 0;
+    
+    // Count nights for this reservation (day differences)
+    for (let day = new Date(start); day < end; day.setDate(day.getDate() + 1)) {
+      nightCount++;
+    }
+    
+    // Add nights to user count
+    userCounts[userId] = (userCounts[userId] || 0) + nightCount;
   });
   
   let mostFrequentUserId = 0;
