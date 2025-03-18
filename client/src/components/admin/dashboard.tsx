@@ -61,8 +61,9 @@ export default function AdminDashboard() {
     queryKey: [`/api/admin/stats/${year}`],
   });
   
+  // Modificamos para obtener solo las reservaciones del historial (aprobadas)
   const { data: reservations, isLoading: isLoadingReservations } = useQuery({
-    queryKey: [`/api/admin/reservations/${year}`],
+    queryKey: [`/api/admin/reservations/history/${year}`],
   });
   
   const { data: calendarData } = useQuery({
