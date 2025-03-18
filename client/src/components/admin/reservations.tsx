@@ -239,12 +239,21 @@ export default function AdminReservations() {
                       <TableCell>{reservation.numberOfGuests}</TableCell>
                       <TableCell>{reservation.notes || '-'}</TableCell>
                       <TableCell>
-                        <span className={`px-2 py-1 text-xs rounded-full reservation-status-${reservation.status === 'approved' ? 'available' : reservation.status === 'pending' ? 'pending' : 'rejected'}`}>
+                        <span className={`px-2 py-1 text-xs rounded-full reservation-status-${
+                          reservation.status === 'approved' 
+                            ? 'available' 
+                            : reservation.status === 'pending' 
+                              ? 'pending' 
+                              : 'rejected'
+                        }`}>
                           {reservation.status === 'approved' 
                             ? 'Aceptada' 
                             : reservation.status === 'pending' 
                               ? 'En revisión' 
-                              : 'Rechazada'}
+                              : reservation.status === 'cancelled'
+                                ? 'Cancelada por usuario'
+                                : 'Rechazada'
+                          }
                         </span>
                       </TableCell>
                     </TableRow>
