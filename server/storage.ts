@@ -191,7 +191,9 @@ export class MemStorage implements IStorage {
   }
 
   async getReservationStatsByYear(year: string): Promise<ReservationStats> {
-    const yearReservations = await this.getReservationsByYear(year);
+    // Obtener solo las reservas aprobadas
+    const allYearReservations = await this.getReservationsByYear(year);
+    const approvedReservations = allYearReservations.filter(res => res.status === "approved");
     
     // Create a map of user IDs to usernames
     const usernames: Record<number, string> = {};
@@ -200,7 +202,7 @@ export class MemStorage implements IStorage {
       usernames[user.id] = user.username;
     }
     
-    return calculateStats(yearReservations, usernames);
+    return calculateStats(approvedReservations, usernames);
   }
 
   async getCalendarDataByYear(year: string): Promise<{date: string, status: string}[]> {

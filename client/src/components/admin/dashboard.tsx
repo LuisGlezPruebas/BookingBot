@@ -111,10 +111,10 @@ export default function AdminDashboard() {
         reservations={reservationsList} 
       />
 
-      {/* Listado de Reservas - Segundo como solicitado */}
+      {/* Listado de Reservas Aprobadas - Segundo como solicitado */}
       <Card className="bg-card shadow-sm mb-8">
         <CardContent className="p-6">
-          <h3 className="text-lg font-medium text-foreground mb-4">Listado de Reservas</h3>
+          <h3 className="text-lg font-medium text-foreground mb-4">Listado de Reservas Aprobadas</h3>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -179,7 +179,7 @@ export default function AdminDashboard() {
       {/* Stats Cards - Ahora en tercera posición */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatsCard 
-          title="Total Reservas" 
+          title="Total Reservas Aprobadas" 
           value={statsData.totalReservations} 
           icon={<CalendarDays className="text-primary h-5 w-5" />} 
         />
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
         {/* Monthly Reservations Chart */}
         <Card className="bg-card shadow-sm">
           <CardContent className="p-6">
-            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Mes</h3>
+            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Mes (Aprobadas)</h3>
             <div className="h-64 flex items-end justify-between space-x-2">
               {Array(12).fill(0).map((_, index) => {
                 const monthData = statsData.reservationsByMonth.find(m => m.month === index + 1);
@@ -229,7 +229,7 @@ export default function AdminDashboard() {
         {/* User Stats Chart */}
         <Card className="bg-card shadow-sm">
           <CardContent className="p-6">
-            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Usuario</h3>
+            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Usuario (Aprobadas)</h3>
             <div className="h-64 flex items-center justify-center">
               <div className="w-full max-w-md">
                 {statsData.reservationsByUser.map((user, index: number) => {
