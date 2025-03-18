@@ -163,7 +163,7 @@ export default function AdminReservations() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {pendingList.map((reservation: any) => (
+                  {(Array.isArray(pendingList) ? pendingList : []).map((reservation: any) => (
                     <TableRow key={reservation.id}>
                       <TableCell>{reservation.username}</TableCell>
                       <TableCell>{formatDate(reservation.startDate)}</TableCell>
@@ -195,7 +195,7 @@ export default function AdminReservations() {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {pendingList.length === 0 && (
+                  {(!Array.isArray(pendingList) || pendingList.length === 0) && (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center py-4">
                         {isPendingLoading 
@@ -230,7 +230,7 @@ export default function AdminReservations() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {historyList.map((reservation: any) => (
+                  {(Array.isArray(historyList) ? historyList : []).map((reservation: any) => (
                     <TableRow key={reservation.id}>
                       <TableCell>{reservation.username}</TableCell>
                       <TableCell>{formatDate(reservation.startDate)}</TableCell>
@@ -258,7 +258,7 @@ export default function AdminReservations() {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {historyList.length === 0 && (
+                  {(!Array.isArray(historyList) || historyList.length === 0) && (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center py-4">
                         {isHistoryLoading 

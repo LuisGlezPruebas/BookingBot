@@ -285,7 +285,10 @@ export default function Calendar() {
     const yearNum = parseInt(year);
     const daysInMonth = getDaysInMonth(yearNum, currentMonth);
     const firstDayOfMonth = getFirstDayOfMonth(yearNum, currentMonth);
-    const prevMonthDays = getFirstDayOfMonth(yearNum, currentMonth) === 0 ? 6 : firstDayOfMonth - 1;
+    // Para que la semana empiece en lunes (1) en lugar de domingo (0)
+    // Si firstDayOfMonth es 0 (domingo), necesitamos 6 días de relleno
+    // Para cualquier otro día, restamos 1 para obtener los días de relleno necesarios
+    const prevMonthDays = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
     
     // Calendar array with prev month days for padding
     const days = [];
