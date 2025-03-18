@@ -41,6 +41,7 @@ const calculateNights = (startDate: string, endDate: string): number => {
 export class EmailService {
   /**
    * Envía un email al administrador cuando se crea una nueva reserva
+   * o cuando se modifica una existente
    */
   static async sendNewReservationNotificationToAdmin(reservation: Reservation, username: string): Promise<void> {
     try {
@@ -48,13 +49,27 @@ export class EmailService {
       const endDateFormatted = formatDate(reservation.endDate.toString());
       const nights = calculateNights(reservation.startDate.toString(), reservation.endDate.toString());
       
+      // Ajusta el tema según el estado de la reserva
+      const isModified = reservation.status === 'modified';
+      const subject = isModified 
+        ? `Solicitud de modificación de reserva de ${username}`
+        : `Nueva solicitud de reserva de ${username}`;
+      
+      const title = isModified
+        ? `Solicitud de modificación de reserva`
+        : `Nueva solicitud de reserva`;
+        
+      const intro = isModified
+        ? `${username} ha solicitado una modificación en su reserva con los siguientes detalles:`
+        : `Se ha recibido una nueva solicitud de reserva con los siguientes detalles:`;
+      
       const mailOptions = {
         from: EMAIL_FROM,
         to: ADMIN_EMAIL,
-        subject: `Nueva solicitud de reserva de ${username}`,
+        subject: subject,
         html: `
-          <h1>Nueva solicitud de reserva</h1>
-          <p>Se ha recibido una nueva solicitud de reserva con los siguientes detalles:</p>
+          <h1>${title}</h1>
+          <p>${intro}</p>
           
           <ul>
             <li><strong>Usuario:</strong> ${username}</li>
@@ -122,6 +137,7 @@ export class EmailService {
   
   /**
    * Envía un email al usuario cuando el administrador cambia el estado de la reserva
+   * o cuando se realizan modificaciones/cancelaciones
    */
   static async sendReservationStatusUpdateToUser(
     reservation: Reservation, 
@@ -134,15 +150,30 @@ export class EmailService {
       const endDateFormatted = formatDate(reservation.endDate.toString());
       const nights = calculateNights(reservation.startDate.toString(), reservation.endDate.toString());
       
-      const statusText = reservation.status === 'approved' 
-        ? 'aprobada' 
-        : reservation.status === 'rejected' 
-          ? 'rechazada' 
-          : 'actualizada';
+      let statusText = 'actualizada';
+      let statusMessage = '';
       
-      const statusMessage = reservation.status === 'approved'
-        ? 'Ha sido aprobada. Te esperamos en la casa de Tamariu.'
-        : 'Ha sido rechazada. Por favor, intenta reservar en otras fechas o contacta con el administrador para más información.';
+      switch (reservation.status) {
+        case 'approved':
+          statusText = 'aprobada';
+          statusMessage = 'Ha sido aprobada. Te esperamos en la casa de Tamariu.';
+          break;
+        case 'rejected':
+          statusText = 'rechazada';
+          statusMessage = 'Ha sido rechazada. Por favor, intenta reservar en otras fechas o contacta con el administrador para más información.';
+          break;
+        case 'modified':
+          statusText = 'modificada';
+          statusMessage = 'Tu solicitud de modificación ha sido procesada.';
+          break; 
+        case 'cancelled':
+          statusText = 'cancelada';
+          statusMessage = 'Tu reserva ha sido cancelada según tu solicitud.';
+          break;
+        default:
+          statusText = 'actualizada';
+          statusMessage = 'El estado de tu reserva ha sido actualizado.';
+      }
       
       const mailOptions = {
         from: EMAIL_FROM,

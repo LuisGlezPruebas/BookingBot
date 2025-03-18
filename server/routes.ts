@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertReservationSchema, updateReservationStatusSchema } from "@shared/schema";
+import { insertReservationSchema, updateReservationStatusSchema, updateReservationSchema } from "@shared/schema";
 import { z } from "zod";
 import { EmailService } from "./services/email.service";
 import { UserService } from "./services/user.service";
@@ -147,6 +147,159 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Modificar una reserva existente
+  app.patch("/api/user/reservations/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      // Verificar que la reserva existe
+      const existingReservation = await storage.getReservation(id);
+      if (!existingReservation) {
+        return res.status(404).json({ message: "Reserva no encontrada" });
+      }
+      
+      // Verificar que el usuario es el propietario de la reserva
+      const userId = parseInt(req.query.userId as string);
+      if (existingReservation.userId !== userId) {
+        return res.status(403).json({ message: "No tienes permiso para modificar esta reserva" });
+      }
+      
+      // Verificar que la reserva no ha pasado
+      const currentDate = new Date();
+      if (new Date(existingReservation.startDate) <= currentDate) {
+        return res.status(400).json({ message: "No se puede modificar una reserva que ya ha comenzado o pasado" });
+      }
+      
+      try {
+        // Validar los datos de actualización
+        const parsedData = updateReservationSchema.parse(req.body);
+        
+        // Verificar que no hay conflictos con otras reservas aprobadas
+        const year = new Date(parsedData.startDate).getFullYear().toString();
+        const existingReservations = await storage.getReservationsByYear(year);
+        
+        // Función para verificar si dos rangos de fechas se solapan
+        const datesOverlap = (startA: Date, endA: Date, startB: Date, endB: Date): boolean => {
+          return startA <= endB && startB <= endA;
+        };
+        
+        // Comprobar si hay alguna reserva aprobada que se solape (excepto la que estamos modificando)
+        const hasConflict = existingReservations.some(reservation => {
+          // No considerar la reserva que estamos modificando
+          if (reservation.id === id) return false;
+          
+          // Solo considerar reservas aprobadas
+          if (reservation.status !== 'approved') return false;
+          
+          // Verificar solapamiento
+          return datesOverlap(
+            new Date(parsedData.startDate),
+            new Date(parsedData.endDate),
+            new Date(reservation.startDate),
+            new Date(reservation.endDate)
+          );
+        });
+        
+        if (hasConflict) {
+          return res.status(400).json({
+            message: "El rango de fechas seleccionado incluye días que ya están ocupados por otra reserva aprobada."
+          });
+        }
+        
+        // Actualizar la reserva
+        const updatedReservation = await storage.updateReservation(id, parsedData);
+        
+        if (!updatedReservation) {
+          return res.status(500).json({ message: "Error al actualizar la reserva" });
+        }
+        
+        // Enviar notificaciones por email
+        try {
+          const userInfo = await UserService.getUserInfo(existingReservation.userId);
+          
+          // Notificar al usuario
+          await EmailService.sendReservationStatusUpdateToUser(
+            updatedReservation,
+            userInfo.username,
+            userInfo.email
+          );
+          
+          // Notificar al administrador
+          await EmailService.sendNewReservationNotificationToAdmin(
+            updatedReservation,
+            userInfo.username
+          );
+          
+          console.log("Notificaciones de modificación enviadas");
+        } catch (emailError) {
+          console.error("Error al enviar notificaciones de modificación:", emailError);
+        }
+        
+        res.json(updatedReservation);
+      } catch (validationError) {
+        if (validationError instanceof z.ZodError) {
+          return res.status(400).json({ 
+            message: "Datos de actualización inválidos", 
+            errors: validationError.errors 
+          });
+        }
+        throw validationError;
+      }
+    } catch (error) {
+      console.error("Error al modificar reserva:", error);
+      res.status(500).json({ message: "Error interno al modificar la reserva" });
+    }
+  });
+  
+  // Cancelar una reserva
+  app.delete("/api/user/reservations/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      // Verificar que la reserva existe
+      const existingReservation = await storage.getReservation(id);
+      if (!existingReservation) {
+        return res.status(404).json({ message: "Reserva no encontrada" });
+      }
+      
+      // Verificar que el usuario es el propietario de la reserva
+      const userId = parseInt(req.query.userId as string);
+      if (existingReservation.userId !== userId) {
+        return res.status(403).json({ message: "No tienes permiso para cancelar esta reserva" });
+      }
+      
+      // Cancelar la reserva
+      const cancelledReservation = await storage.cancelReservation(id);
+      
+      if (!cancelledReservation) {
+        return res.status(400).json({ 
+          message: "No se puede cancelar la reserva. Posiblemente ya ha comenzado o pasado." 
+        });
+      }
+      
+      // Enviar notificaciones por email
+      try {
+        const userInfo = await UserService.getUserInfo(existingReservation.userId);
+        
+        // Notificar al usuario
+        await EmailService.sendReservationStatusUpdateToUser(
+          cancelledReservation,
+          userInfo.username,
+          userInfo.email
+        );
+        
+        console.log("Notificación de cancelación enviada al usuario");
+      } catch (emailError) {
+        console.error("Error al enviar notificación de cancelación:", emailError);
+      }
+      
+      res.json(cancelledReservation);
+    } catch (error) {
+      console.error("Error al cancelar reserva:", error);
+      res.status(500).json({ message: "Error interno al cancelar la reserva" });
+    }
+  });
+
   // === ADMIN ROUTES ===
   
   // Get stats for a specific year

@@ -172,13 +172,16 @@ export class MemStorage implements IStorage {
 
   async getPendingReservationsByYear(year: string): Promise<Reservation[]> {
     const yearReservations = await this.getReservationsByYear(year);
-    return yearReservations.filter(res => res.status === "pending");
+    return yearReservations.filter(res => res.status === "pending" || res.status === "modified");
   }
 
   async getReservationHistoryByYear(year: string): Promise<Reservation[]> {
     const yearReservations = await this.getReservationsByYear(year);
-    return yearReservations.filter(res => res.status === "approved" || res.status === "rejected")
-      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+    return yearReservations.filter(res => 
+      res.status === "approved" || 
+      res.status === "rejected" || 
+      res.status === "cancelled"
+    ).sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
   }
 
   async getUserReservationsByYear(userId: number, year: string): Promise<Reservation[]> {
@@ -227,8 +230,8 @@ export class MemStorage implements IStorage {
         if (day >= startDate && day <= endDate) {
           if (reservation.status === 'approved') {
             status = 'occupied';
-            break; // Priority: occupied > pending > available
-          } else if (reservation.status === 'pending' && status !== 'occupied') {
+            break; // Priority: occupied > pending/modified > available
+          } else if ((reservation.status === 'pending' || reservation.status === 'modified') && status !== 'occupied') {
             status = 'pending';
             // Don't break, continue checking in case there's an approved reservation
           }
