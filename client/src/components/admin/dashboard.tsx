@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { User, CalendarIcon, BarChart3, Users } from "lucide-react";
-import { ReservationStats } from '../../../shared/schema';
+import { ReservationStats } from '@shared/schema';
 import AnnualCalendar from './annual-calendar';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';

@@ -162,7 +162,8 @@ export default function AdminReservations() {
   
   // Ordenar las listas según los criterios seleccionados
   const sortedPendingList = useMemo(() => {
-    const pendingList = pendingReservations || [];
+    // Asegurarnos que pendingReservations es un array válido
+    const pendingList = Array.isArray(pendingReservations) ? pendingReservations : [];
     if (!pendingSortKey || !pendingSortDirection) return pendingList;
     
     return [...pendingList].sort((a, b) => {
@@ -197,7 +198,8 @@ export default function AdminReservations() {
   }, [pendingReservations, pendingSortKey, pendingSortDirection]);
   
   const sortedHistoryList = useMemo(() => {
-    const historyList = reservationHistory || [];
+    // Asegurarnos que reservationHistory es un array válido
+    const historyList = Array.isArray(reservationHistory) ? reservationHistory : [];
     if (!historySortKey || !historySortDirection) return historyList;
     
     return [...historyList].sort((a, b) => {
