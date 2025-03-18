@@ -26,6 +26,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { formatDate } from "@/lib/utils/date-utils";
+import AnnualCalendar from "./annual-calendar";
 
 interface StatsCardProps {
   title: string;
@@ -54,6 +55,7 @@ function StatsCard({ title, value, icon, suffix }: StatsCardProps) {
 export default function AdminDashboard() {
   const [year, setYear] = useState<string>("2025");
   
+  // Consultas para obtener datos
   const { data: stats, isLoading } = useQuery({
     queryKey: [`/api/admin/stats/${year}`],
   });
@@ -61,8 +63,12 @@ export default function AdminDashboard() {
   const { data: reservations, isLoading: isLoadingReservations } = useQuery({
     queryKey: [`/api/admin/reservations/${year}`],
   });
+  
+  const { data: calendarData } = useQuery({
+    queryKey: [`/api/user/calendar/${year}`],
+  });
 
-  // Default data if no data is loaded yet
+  // Valores por defecto para evitar errores
   const statsData = stats || {
     totalReservations: 0,
     occupiedDays: 0,
@@ -72,7 +78,8 @@ export default function AdminDashboard() {
     reservationsByUser: []
   };
 
-  const reservationsList = reservations || [];
+  const reservationsList = Array.isArray(reservations) ? reservations : [];
+  const calendarDataList = Array.isArray(calendarData) ? calendarData : [];
 
   return (
     <div className="container mx-auto px-4 sm:px-6 py-6 flex-grow">
@@ -95,86 +102,15 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatsCard 
-          title="Total Reservas" 
-          value={statsData.totalReservations} 
-          icon={<CalendarDays className="text-primary h-5 w-5" />} 
-        />
-        <StatsCard 
-          title="Días Ocupados" 
-          value={statsData.occupiedDays} 
-          icon={<Hotel className="text-destructive h-5 w-5" />} 
-        />
-        <StatsCard 
-          title="Usuario Frecuente" 
-          value={statsData.frequentUser} 
-          icon={<User className="text-secondary h-5 w-5" />} 
-        />
-        <StatsCard 
-          title="Ocupación" 
-          value={`${statsData.occupancyRate}%`} 
-          icon={<PieChart className="text-[#ff832b] h-5 w-5" />} 
-          suffix="anual" 
-        />
-      </div>
+      {/* Calendario Anual - Primero como solicitado */}
+      <AnnualCalendar 
+        year={year} 
+        calendarData={calendarDataList} 
+        reservations={reservationsList} 
+      />
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Monthly Reservations Chart */}
-        <Card className="bg-card shadow-sm">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Mes</h3>
-            <div className="h-64 flex items-end justify-between space-x-2">
-              {Array(12).fill(0).map((_, index) => {
-                const monthData = statsData.reservationsByMonth.find(m => m.month === index + 1);
-                const monthCount = monthData?.count || 0;
-                const maxCount = Math.max(...statsData.reservationsByMonth.map(m => m.count), 1);
-                const height = `${(monthCount / maxCount) * 100}%`;
-                const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-                
-                return (
-                  <div key={index} className="flex flex-col items-center flex-1">
-                    <div className="chart-bar w-full" style={{ height }}></div>
-                    <span className="text-xs text-muted-foreground mt-1">{monthNames[index]}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* User Stats Chart */}
-        <Card className="bg-card shadow-sm">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Usuario</h3>
-            <div className="h-64 flex items-center justify-center">
-              <div className="w-full max-w-md">
-                {statsData.reservationsByUser.map((user, index) => {
-                  const maxCount = Math.max(...statsData.reservationsByUser.map(u => u.count), 1);
-                  const width = `${(user.count / maxCount) * 100}%`;
-                  
-                  return (
-                    <div key={index} className="mb-4">
-                      <div className="flex justify-between mb-1">
-                        <span className="text-muted-foreground">{user.username}</span>
-                        <span className="text-foreground font-medium">{user.count} noches</span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-2.5">
-                        <div className="bg-primary h-2.5 rounded-full" style={{ width }}></div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Reservations List */}
-      <Card className="bg-card shadow-sm">
+      {/* Listado de Reservas - Segundo como solicitado */}
+      <Card className="bg-card shadow-sm mb-8">
         <CardContent className="p-6">
           <h3 className="text-lg font-medium text-foreground mb-4">Listado de Reservas</h3>
           <div className="overflow-x-auto">
@@ -204,12 +140,22 @@ export default function AdminDashboard() {
                       <TableCell>{nights}</TableCell>
                       <TableCell>{reservation.numberOfGuests}</TableCell>
                       <TableCell>
-                        <span className={`px-2 py-1 text-xs rounded-full reservation-status-${reservation.status === 'approved' ? 'available' : reservation.status === 'pending' ? 'pending' : 'rejected'}`}>
+                        <span className={`px-2 py-1 text-xs rounded-full reservation-status-${
+                          reservation.status === 'approved' 
+                            ? 'available' 
+                            : reservation.status === 'pending' || reservation.status === 'modified'
+                              ? 'pending' 
+                              : 'rejected'
+                        }`}>
                           {reservation.status === 'approved' 
                             ? 'Aceptada' 
                             : reservation.status === 'pending' 
-                              ? 'En revisión' 
-                              : 'Rechazada'}
+                              ? 'En revisión'
+                              : reservation.status === 'modified'
+                                ? 'Modificada (pendiente)'
+                                : reservation.status === 'cancelled'
+                                  ? 'Cancelada'
+                                  : 'Rechazada'}
                         </span>
                       </TableCell>
                     </TableRow>
@@ -227,6 +173,84 @@ export default function AdminDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Stats Cards - Ahora en tercera posición */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatsCard 
+          title="Total Reservas" 
+          value={statsData.totalReservations} 
+          icon={<CalendarDays className="text-primary h-5 w-5" />} 
+        />
+        <StatsCard 
+          title="Días Ocupados" 
+          value={statsData.occupiedDays} 
+          icon={<Hotel className="text-destructive h-5 w-5" />} 
+        />
+        <StatsCard 
+          title="Usuario Frecuente" 
+          value={statsData.frequentUser} 
+          icon={<User className="text-secondary h-5 w-5" />} 
+        />
+        <StatsCard 
+          title="Ocupación" 
+          value={`${statsData.occupancyRate}%`} 
+          icon={<PieChart className="text-[#ff832b] h-5 w-5" />} 
+          suffix="anual" 
+        />
+      </div>
+
+      {/* Charts Row - Al final */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Monthly Reservations Chart */}
+        <Card className="bg-card shadow-sm">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Mes</h3>
+            <div className="h-64 flex items-end justify-between space-x-2">
+              {Array(12).fill(0).map((_, index) => {
+                const monthData = statsData.reservationsByMonth.find((m: any) => m.month === index + 1);
+                const monthCount = monthData?.count || 0;
+                const maxCount = Math.max(...statsData.reservationsByMonth.map((m: any) => m.count), 1);
+                const height = `${(monthCount / maxCount) * 100}%`;
+                const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                
+                return (
+                  <div key={index} className="flex flex-col items-center flex-1">
+                    <div className="chart-bar w-full" style={{ height }}></div>
+                    <span className="text-xs text-muted-foreground mt-1">{monthNames[index]}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* User Stats Chart */}
+        <Card className="bg-card shadow-sm">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Usuario</h3>
+            <div className="h-64 flex items-center justify-center">
+              <div className="w-full max-w-md">
+                {statsData.reservationsByUser.map((user: any, index: number) => {
+                  const maxCount = Math.max(...statsData.reservationsByUser.map((u: any) => u.count), 1);
+                  const width = `${(user.count / maxCount) * 100}%`;
+                  
+                  return (
+                    <div key={index} className="mb-4">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-muted-foreground">{user.username}</span>
+                        <span className="text-foreground font-medium">{user.count} noches</span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2.5">
+                        <div className="bg-primary h-2.5 rounded-full" style={{ width }}></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
