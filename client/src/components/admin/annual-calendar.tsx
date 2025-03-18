@@ -92,8 +92,6 @@ function MonthView({ month, year, calendarData, userColors, usernames }: MonthVi
           if (!day.isPast) {
             if (day.status === "occupied" && day.userId) {
               bgClass = userColors[day.userId] || "bg-green-100"; // Color del usuario
-            } else if (day.status === "pending") {
-              bgClass = "bg-amber-200"; // Pendiente
             } else {
               bgClass = "bg-green-100"; // Disponible
             }
@@ -153,12 +151,13 @@ export default function AnnualCalendar({ year, calendarData, reservations }: Ann
       calendarData.forEach((day: any) => {
         if (!day || !day.date) return;
         
-        // Encontrar reservas que incluyen esta fecha
+        // Encontrar SOLO reservas APROBADAS que incluyen esta fecha
         const dayReservations = reservations.filter((r: any) => {
           const startDate = new Date(r.startDate);
           const endDate = new Date(r.endDate);
           const currentDate = new Date(day.date);
           
+          // Filtrar estrictamente por estado 'approved'
           return currentDate >= startDate && currentDate <= endDate && r.status === 'approved';
         });
         
@@ -218,10 +217,6 @@ export default function AnnualCalendar({ year, calendarData, reservations }: Ann
               <span className="text-xs text-muted-foreground">{name}</span>
             </div>
           ))}
-          <div className="flex items-center">
-            <div className="bg-amber-200 w-3 h-3 rounded-full mr-1"></div>
-            <span className="text-xs text-muted-foreground">Pendiente</span>
-          </div>
           <div className="flex items-center">
             <div className="bg-green-100 w-3 h-3 rounded-full mr-1"></div>
             <span className="text-xs text-muted-foreground">Disponible</span>

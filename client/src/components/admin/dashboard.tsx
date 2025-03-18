@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/table";
 import { formatDate } from "@/lib/utils/date-utils";
 import AnnualCalendar from "./annual-calendar";
+import { ReservationStats } from "@shared/schema";
 
 interface StatsCardProps {
   title: string;
@@ -56,7 +57,7 @@ export default function AdminDashboard() {
   const [year, setYear] = useState<string>("2025");
   
   // Consultas para obtener datos
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading } = useQuery<ReservationStats>({
     queryKey: [`/api/admin/stats/${year}`],
   });
   
@@ -69,7 +70,7 @@ export default function AdminDashboard() {
   });
 
   // Valores por defecto para evitar errores
-  const statsData = stats || {
+  const statsData: ReservationStats = stats || {
     totalReservations: 0,
     occupiedDays: 0,
     frequentUser: '-',
@@ -207,9 +208,9 @@ export default function AdminDashboard() {
             <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Mes</h3>
             <div className="h-64 flex items-end justify-between space-x-2">
               {Array(12).fill(0).map((_, index) => {
-                const monthData = statsData.reservationsByMonth.find((m: any) => m.month === index + 1);
+                const monthData = statsData.reservationsByMonth.find(m => m.month === index + 1);
                 const monthCount = monthData?.count || 0;
-                const maxCount = Math.max(...statsData.reservationsByMonth.map((m: any) => m.count), 1);
+                const maxCount = Math.max(...statsData.reservationsByMonth.map(m => m.count), 1);
                 const height = `${(monthCount / maxCount) * 100}%`;
                 const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
                 
@@ -230,8 +231,8 @@ export default function AdminDashboard() {
             <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Usuario</h3>
             <div className="h-64 flex items-center justify-center">
               <div className="w-full max-w-md">
-                {statsData.reservationsByUser.map((user: any, index: number) => {
-                  const maxCount = Math.max(...statsData.reservationsByUser.map((u: any) => u.count), 1);
+                {statsData.reservationsByUser.map((user, index: number) => {
+                  const maxCount = Math.max(...statsData.reservationsByUser.map(u => u.count), 1);
                   const width = `${(user.count / maxCount) * 100}%`;
                   
                   return (
