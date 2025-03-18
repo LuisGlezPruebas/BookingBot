@@ -102,33 +102,6 @@ export default function AdminDashboard() {
     <div className="p-4 md:p-6">
       <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatsCard
-          title="Reservas Totales"
-          value={statsData.totalReservations}
-          icon={<CalendarIcon className="h-6 w-6 text-primary" />}
-        />
-        
-        <StatsCard
-          title="Noches Ocupadas"
-          value={statsData.occupiedDays}
-          icon={<BarChart3 className="h-6 w-6 text-primary" />}
-        />
-        
-        <StatsCard
-          title="Usuario Frecuente"
-          value={statsData.frequentUser}
-          icon={<User className="h-6 w-6 text-primary" />}
-        />
-        
-        <StatsCard
-          title="Tasa de Ocupación"
-          value={statsData.occupancyRate}
-          icon={<Users className="h-6 w-6 text-primary" />}
-          suffix="%"
-        />
-      </div>
-      
       {/* 1. Calendario Anual */}
       <AnnualCalendar year={currentYear} calendarData={calendarData} reservations={reservations} />
       
@@ -171,7 +144,35 @@ export default function AdminDashboard() {
         </CardContent>
       </Card>
       
-      {/* 3. Gráficos de Estadísticas */}
+      {/* 3. Tarjetas de Estadísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <StatsCard
+          title="Reservas Totales"
+          value={statsData.totalReservations}
+          icon={<CalendarIcon className="h-6 w-6 text-primary" />}
+        />
+        
+        <StatsCard
+          title="Noches Ocupadas"
+          value={statsData.occupiedDays}
+          icon={<BarChart3 className="h-6 w-6 text-primary" />}
+        />
+        
+        <StatsCard
+          title="Usuario Frecuente"
+          value={statsData.frequentUser}
+          icon={<User className="h-6 w-6 text-primary" />}
+        />
+        
+        <StatsCard
+          title="Tasa de Ocupación"
+          value={statsData.occupancyRate}
+          icon={<Users className="h-6 w-6 text-primary" />}
+          suffix="%"
+        />
+      </div>
+      
+      {/* 4. Gráficos de Estadísticas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly Reservations Chart */}
         <Card className="bg-card shadow-sm">
