@@ -213,7 +213,7 @@ export default function AdminReservations() {
       
       {/* Reservation History */}
       <div>
-        <h2 className="text-2xl font-medium text-foreground mb-6">Historial de Reservas</h2>
+        <h2 className="text-2xl font-medium text-foreground mb-6">Listado de Reservas Aprobadas</h2>
         <Card className="bg-card shadow-sm">
           <CardContent className="p-6">
             <div className="overflow-x-auto">

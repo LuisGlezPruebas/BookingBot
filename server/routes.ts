@@ -317,6 +317,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/reservations/:year", async (req: Request, res: Response) => {
     try {
       const year = req.params.year;
+      const reservations = await storage.getApprovedReservationsByYear(year);
+      
+      // Get usernames for each reservation
+      const reservationsWithUsernames = await Promise.all(
+        reservations.map(async (reservation) => {
+          const user = await storage.getUser(reservation.userId);
+          return {
+            ...reservation,
+            username: user?.username || "Unknown User"
+          };
+        })
+      );
+      
+      res.json(reservationsWithUsernames);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching reservations" });
+    }
+  });
+  
+  // Get all reservations for a specific year (including all statuses)
+  app.get("/api/admin/all-reservations/:year", async (req: Request, res: Response) => {
+    try {
+      const year = req.params.year;
       const reservations = await storage.getReservationsByYear(year);
       
       // Get usernames for each reservation

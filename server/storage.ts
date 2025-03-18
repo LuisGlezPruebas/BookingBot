@@ -24,6 +24,7 @@ export interface IStorage {
   getReservationsByYear(year: string): Promise<Reservation[]>;
   getPendingReservationsByYear(year: string): Promise<Reservation[]>;
   getReservationHistoryByYear(year: string): Promise<Reservation[]>;
+  getApprovedReservationsByYear(year: string): Promise<Reservation[]>;
   getUserReservationsByYear(userId: number, year: string): Promise<Reservation[]>;
   getReservationStatsByYear(year: string): Promise<ReservationStats>;
   getCalendarDataByYear(year: string): Promise<{date: string, status: string}[]>;
@@ -182,6 +183,12 @@ export class MemStorage implements IStorage {
       res.status === "rejected" || 
       res.status === "cancelled"
     ).sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+  }
+  
+  async getApprovedReservationsByYear(year: string): Promise<Reservation[]> {
+    const yearReservations = await this.getReservationsByYear(year);
+    return yearReservations.filter(res => res.status === "approved")
+      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
   }
 
   async getUserReservationsByYear(userId: number, year: string): Promise<Reservation[]> {
