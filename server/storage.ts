@@ -7,7 +7,74 @@ import {
   UpdateReservation,
   ReservationStats
 } from "@shared/schema";
-import { calculateStats } from "../client/src/lib/utils/reservation-utils";
+
+// Implementar la función calculateStats directamente en el servidor para evitar problemas
+function calculateStats(reservations: Reservation[], usernames: Record<number, string>): ReservationStats {
+  const totalReservations = reservations.length;
+  
+  // Calculate occupied days
+  const occupiedDays = new Set<string>();
+  reservations.forEach(reservation => {
+    const start = new Date(reservation.startDate);
+    const end = new Date(reservation.endDate);
+    
+    // For each day of the reservation
+    for (let day = new Date(start); day <= end; day.setDate(day.getDate() + 1)) {
+      occupiedDays.add(day.toISOString().split('T')[0]);
+    }
+  });
+  
+  // Calculate most frequent user
+  const userCounts: Record<number, number> = {};
+  reservations.forEach(reservation => {
+    userCounts[reservation.userId] = (userCounts[reservation.userId] || 0) + 1;
+  });
+  
+  let mostFrequentUserId = 0;
+  let maxCount = 0;
+  
+  Object.entries(userCounts).forEach(([userId, count]) => {
+    if (count > maxCount) {
+      maxCount = count;
+      mostFrequentUserId = parseInt(userId);
+    }
+  });
+  
+  const frequentUser = usernames[mostFrequentUserId] || '-';
+  
+  // Calculate occupancy rate
+  const currentYear = parseInt(new Date().getFullYear().toString());
+  const daysInYear = (currentYear % 4 === 0 && (currentYear % 100 !== 0 || currentYear % 400 === 0)) ? 366 : 365;
+  const occupancyRate = Math.round((occupiedDays.size / daysInYear) * 100);
+  
+  // Calculate reservations by month
+  const reservationsByMonth = Array(12).fill(0).map((_, i) => ({ month: i + 1, count: 0 }));
+  
+  reservations.forEach(reservation => {
+    const start = new Date(reservation.startDate);
+    const end = new Date(reservation.endDate);
+    
+    // For each day of the reservation
+    for (let day = new Date(start); day <= end; day.setDate(day.getDate() + 1)) {
+      reservationsByMonth[day.getMonth()].count++;
+    }
+  });
+  
+  // Calculate reservations by user
+  const reservationsByUser = Object.entries(userCounts).map(([userId, count]) => ({
+    username: usernames[parseInt(userId)] || '-',
+    count
+  }));
+  
+  return {
+    totalReservations,
+    occupiedDays: occupiedDays.size,
+    frequentUser,
+    occupancyRate,
+    reservationsByMonth,
+    reservationsByUser
+  };
+}
 
 export interface IStorage {
   // User operations
@@ -191,9 +258,6 @@ export class MemStorage implements IStorage {
       .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
     
     console.log(`Obtenidas ${approvedReservations.length} reservas aprobadas para el año ${year}`);
-    approvedReservations.forEach(res => {
-      console.log(`Día ocupado: ${res.startDate.slice(0, 10)} por usuario ${res.userId} (${this.users.get(res.userId)?.username})`);
-    });
     
     return approvedReservations;
   }

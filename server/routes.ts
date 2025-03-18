@@ -306,9 +306,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/stats/:year", async (req: Request, res: Response) => {
     try {
       const year = req.params.year;
+      console.log(`Obteniendo estadísticas para el año ${year}`);
+      
       const stats = await storage.getReservationStatsByYear(year);
+      console.log(`Estadísticas obtenidas correctamente: ${JSON.stringify(stats, null, 2)}`);
+      
       res.json(stats);
     } catch (error) {
+      console.error("Error obteniendo estadísticas:", error);
       res.status(500).json({ message: "Error fetching stats" });
     }
   });
@@ -317,7 +322,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/reservations/:year", async (req: Request, res: Response) => {
     try {
       const year = req.params.year;
+      console.log(`Obteniendo reservas aprobadas para el año ${year}`);
+      
       const reservations = await storage.getApprovedReservationsByYear(year);
+      console.log(`Obtenidas ${reservations.length} reservas aprobadas`);
       
       // Get usernames for each reservation
       const reservationsWithUsernames = await Promise.all(
@@ -330,8 +338,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
       );
       
+      console.log(`Devolviendo ${reservationsWithUsernames.length} reservas con nombres de usuario`);
       res.json(reservationsWithUsernames);
     } catch (error) {
+      console.error("Error obteniendo reservas:", error);
       res.status(500).json({ message: "Error fetching reservations" });
     }
   });
