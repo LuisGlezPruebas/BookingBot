@@ -54,9 +54,9 @@ export default function AdminReservations() {
     queryKey: [`/api/admin/reservations/pending/${year}`],
   });
   
-  // Fetch reservation history
+  // Fetch approved reservations only
   const { data: reservationHistory, isLoading: isHistoryLoading } = useQuery({
-    queryKey: [`/api/admin/reservations/history/${year}`],
+    queryKey: [`/api/admin/reservations/${year}`],
   });
   
   // Mutations for accepting and rejecting reservations
@@ -226,7 +226,6 @@ export default function AdminReservations() {
                     <TableHead className="text-muted-foreground">Noches</TableHead>
                     <TableHead className="text-muted-foreground">Personas</TableHead>
                     <TableHead className="text-muted-foreground">Notas</TableHead>
-                    <TableHead className="text-muted-foreground">Estado</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -238,32 +237,14 @@ export default function AdminReservations() {
                       <TableCell>{getNights(reservation.startDate, reservation.endDate)}</TableCell>
                       <TableCell>{reservation.numberOfGuests}</TableCell>
                       <TableCell>{reservation.notes || '-'}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 text-xs rounded-full reservation-status-${
-                          reservation.status === 'approved' 
-                            ? 'available' 
-                            : reservation.status === 'pending' 
-                              ? 'pending' 
-                              : 'rejected'
-                        }`}>
-                          {reservation.status === 'approved' 
-                            ? 'Aceptada' 
-                            : reservation.status === 'pending' 
-                              ? 'En revisión' 
-                              : reservation.status === 'cancelled'
-                                ? 'Cancelada por usuario'
-                                : 'Rechazada'
-                          }
-                        </span>
-                      </TableCell>
                     </TableRow>
                   ))}
                   {(!Array.isArray(historyList) || historyList.length === 0) && (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-4">
+                      <TableCell colSpan={6} className="text-center py-4">
                         {isHistoryLoading 
-                          ? "Cargando historial..." 
-                          : "No hay historial de reservas disponible"}
+                          ? "Cargando reservas aprobadas..." 
+                          : "No hay reservas aprobadas disponibles"}
                       </TableCell>
                     </TableRow>
                   )}
