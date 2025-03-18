@@ -43,6 +43,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { getDateStatus } from "@/lib/utils/reservation-utils";
 import { 
   Table, 
   TableBody, 
@@ -120,6 +121,12 @@ export default function MyReservations() {
     queryKey: [`/api/user/reservations/${year}`, userId],
     // Solo activar la consulta cuando tengamos un userId válido
     enabled: userId !== null,
+  });
+  
+  // Query para obtener los datos del calendario (fechas disponibles/ocupadas)
+  const { data: calendarData } = useQuery({
+    queryKey: [`/api/user/calendar/${year}`],
+    enabled: true,
   });
   
   // Mutación para actualizar una reserva
@@ -398,8 +405,22 @@ export default function MyReservations() {
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={(date) => date < new Date()}
+                          disabled={(date) => {
+                            // No permitir fechas pasadas
+                            if (date < new Date()) return true;
+                            
+                            // No permitir fechas ocupadas
+                            if (calendarData && Array.isArray(calendarData)) {
+                              const dateStr = toISODateString(date);
+                              const dateInfo = calendarData.find(d => d.date === dateStr);
+                              return dateInfo?.status === "occupied";
+                            }
+                            return false;
+                          }}
                           initialFocus
+                          locale="es"
+                          weekStartsOn={1} // 1 = lunes
+                          className="reservation-calendar"
                         />
                       </PopoverContent>
                     </Popover>
@@ -435,8 +456,33 @@ export default function MyReservations() {
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={(date) => date <= form.getValues().startDate}
+                          disabled={(date) => {
+                            // No permitir fechas anteriores o iguales a la fecha de entrada
+                            const startDate = form.getValues().startDate;
+                            if (date <= startDate) return true;
+                            
+                            // Verificar fechas ocupadas empezando desde startDate + 1
+                            if (calendarData && Array.isArray(calendarData)) {
+                              // Verificar si hay fechas ocupadas entre startDate y esta fecha
+                              // Si hay alguna fecha ocupada entre medio, no permitir seleccionar
+                              const checkDate = new Date(startDate);
+                              checkDate.setDate(checkDate.getDate() + 1); // Comenzar desde el día siguiente
+                              
+                              while (checkDate < date) {
+                                const dateStr = toISODateString(checkDate);
+                                const dateInfo = calendarData.find(d => d.date === dateStr);
+                                if (dateInfo?.status === "occupied") {
+                                  return true; // No permitir seleccionar si hay días ocupados entre medio
+                                }
+                                checkDate.setDate(checkDate.getDate() + 1);
+                              }
+                            }
+                            return false;
+                          }}
                           initialFocus
+                          locale="es"
+                          weekStartsOn={1} // 1 = lunes
+                          className="reservation-calendar"
                         />
                       </PopoverContent>
                     </Popover>
