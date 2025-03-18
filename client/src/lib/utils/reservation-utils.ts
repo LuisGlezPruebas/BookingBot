@@ -42,31 +42,29 @@ export function getDateStatus(
 
 /**
  * Calculate statistics for dashboard
+ * Esta función recibe reservas que ya están filtradas para ser solo 'approved'
  */
 export function calculateStats(reservations: Reservation[], usernames: Record<number, string>) {
-  const totalReservations = reservations.filter(r => r.status === 'approved').length;
+  // Ya no filtramos por status === 'approved' porque ahora la función recibe solo las reservas aprobadas
+  const totalReservations = reservations.length;
   
   // Calculate occupied days
   const occupiedDays = new Set<string>();
-  reservations
-    .filter(r => r.status === 'approved')
-    .forEach(reservation => {
-      const start = new Date(reservation.startDate);
-      const end = new Date(reservation.endDate);
-      
-      // For each day of the reservation
-      for (let day = new Date(start); day < end; day.setDate(day.getDate() + 1)) {
-        occupiedDays.add(day.toISOString().split('T')[0]);
-      }
-    });
+  reservations.forEach(reservation => {
+    const start = new Date(reservation.startDate);
+    const end = new Date(reservation.endDate);
+    
+    // For each day of the reservation
+    for (let day = new Date(start); day < end; day.setDate(day.getDate() + 1)) {
+      occupiedDays.add(day.toISOString().split('T')[0]);
+    }
+  });
   
   // Calculate most frequent user
   const userCounts: Record<number, number> = {};
-  reservations
-    .filter(r => r.status === 'approved')
-    .forEach(reservation => {
-      userCounts[reservation.userId] = (userCounts[reservation.userId] || 0) + 1;
-    });
+  reservations.forEach(reservation => {
+    userCounts[reservation.userId] = (userCounts[reservation.userId] || 0) + 1;
+  });
   
   let mostFrequentUserId = 0;
   let maxCount = 0;
@@ -87,17 +85,15 @@ export function calculateStats(reservations: Reservation[], usernames: Record<nu
   // Calculate reservations by month
   const reservationsByMonth = Array(12).fill(0).map((_, i) => ({ month: i + 1, count: 0 }));
   
-  reservations
-    .filter(r => r.status === 'approved')
-    .forEach(reservation => {
-      const start = new Date(reservation.startDate);
-      const end = new Date(reservation.endDate);
-      
-      // For each day of the reservation
-      for (let day = new Date(start); day < end; day.setDate(day.getDate() + 1)) {
-        reservationsByMonth[day.getMonth()].count++;
-      }
-    });
+  reservations.forEach(reservation => {
+    const start = new Date(reservation.startDate);
+    const end = new Date(reservation.endDate);
+    
+    // For each day of the reservation
+    for (let day = new Date(start); day < end; day.setDate(day.getDate() + 1)) {
+      reservationsByMonth[day.getMonth()].count++;
+    }
+  });
   
   // Calculate reservations by user
   const reservationsByUser = Object.entries(userCounts).map(([userId, count]) => ({

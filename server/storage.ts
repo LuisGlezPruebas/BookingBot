@@ -187,8 +187,15 @@ export class MemStorage implements IStorage {
   
   async getApprovedReservationsByYear(year: string): Promise<Reservation[]> {
     const yearReservations = await this.getReservationsByYear(year);
-    return yearReservations.filter(res => res.status === "approved")
+    const approvedReservations = yearReservations.filter(res => res.status === "approved")
       .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+    
+    console.log(`Obtenidas ${approvedReservations.length} reservas aprobadas para el año ${year}`);
+    approvedReservations.forEach(res => {
+      console.log(`Día ocupado: ${res.startDate.slice(0, 10)} por usuario ${res.userId} (${this.users.get(res.userId)?.username})`);
+    });
+    
+    return approvedReservations;
   }
 
   async getUserReservationsByYear(userId: number, year: string): Promise<Reservation[]> {
@@ -198,9 +205,8 @@ export class MemStorage implements IStorage {
   }
 
   async getReservationStatsByYear(year: string): Promise<ReservationStats> {
-    // Obtener solo las reservas aprobadas
-    const allYearReservations = await this.getReservationsByYear(year);
-    const approvedReservations = allYearReservations.filter(res => res.status === "approved");
+    // Obtener solo las reservas aprobadas usando el método apropiado
+    const approvedReservations = await this.getApprovedReservationsByYear(year);
     
     // Create a map of user IDs to usernames
     const usernames: Record<number, string> = {};
@@ -209,10 +215,14 @@ export class MemStorage implements IStorage {
       usernames[user.id] = user.username;
     }
     
+    // Imprimimos información para depuración
+    console.log(`Calculando estadísticas para ${approvedReservations.length} reservas aprobadas en ${year}`);
+    
     return calculateStats(approvedReservations, usernames);
   }
 
   async getCalendarDataByYear(year: string): Promise<{date: string, status: string}[]> {
+    // Obtenemos todas las reservas para mostrar disponibilidad correctamente
     const yearReservations = await this.getReservationsByYear(year);
     const calendarData: {date: string, status: string}[] = [];
     
