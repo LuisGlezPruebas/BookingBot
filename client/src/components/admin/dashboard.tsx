@@ -5,6 +5,7 @@ import { ReservationStats } from '../../../shared/schema';
 import AnnualCalendar from './annual-calendar';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { SortableTableHeader, SortableColumn, SortDirection } from '@/components/ui/sortable-table-header';
 
 // Componente para tarjetas de estadísticas
 interface StatsCardProps {
@@ -37,6 +38,8 @@ export default function AdminDashboard() {
   const [currentYear, setCurrentYear] = useState<string>(new Date().getFullYear().toString());
   const [calendarData, setCalendarData] = useState<any[]>([]);
   const [reservations, setReservations] = useState<any[]>([]);
+  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
   
   useEffect(() => {
     // Cargar estadísticas para el año actual
@@ -97,6 +100,59 @@ export default function AdminDashboard() {
     const date = new Date(dateString);
     return format(date, 'dd MMM yyyy', { locale: es });
   };
+  
+  // Función para manejar el ordenamiento de columnas
+  const handleSort = (key: string) => {
+    const isAsc = sortKey === key && sortDirection === 'asc';
+    
+    setSortKey(key);
+    setSortDirection(isAsc ? 'desc' : 'asc');
+  };
+  
+  // Definición de columnas ordenables
+  const columns: SortableColumn[] = [
+    { key: 'username', label: 'Usuario' },
+    { key: 'startDate', label: 'Fecha Entrada' },
+    { key: 'endDate', label: 'Fecha Salida' },
+    { key: 'nights', label: 'Noches' },
+    { key: 'numberOfGuests', label: 'Personas' }
+  ];
+  
+  // Obtener y ordenar las reservas
+  const sortedReservations = React.useMemo(() => {
+    if (!sortKey) return reservations;
+    
+    return [...reservations].sort((a, b) => {
+      // Calcular noches para ordenar por esta columna
+      if (sortKey === 'nights') {
+        const aNights = calculateNights(a.startDate, a.endDate);
+        const bNights = calculateNights(b.startDate, b.endDate);
+        return sortDirection === 'asc' ? aNights - bNights : bNights - aNights;
+      }
+      
+      // Ordenar por fechas
+      if (sortKey === 'startDate' || sortKey === 'endDate') {
+        const aDate = new Date(a[sortKey]).getTime();
+        const bDate = new Date(b[sortKey]).getTime();
+        return sortDirection === 'asc' ? aDate - bDate : bDate - aDate;
+      }
+      
+      // Ordenar strings y números
+      const aValue = a[sortKey];
+      const bValue = b[sortKey];
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortDirection === 'asc' 
+          ? aValue.localeCompare(bValue) 
+          : bValue.localeCompare(aValue);
+      }
+      
+      // Para valores numéricos
+      return sortDirection === 'asc' 
+        ? (aValue - bValue) 
+        : (bValue - aValue);
+    });
+  }, [reservations, sortKey, sortDirection]);
 
   return (
     <div className="px-8 py-6">
@@ -118,16 +174,20 @@ export default function AdminDashboard() {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Usuario</th>
-                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Fecha Entrada</th>
-                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Fecha Salida</th>
-                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Noches</th>
-                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Personas</th>
+                  {columns.map((column) => (
+                    <SortableTableHeader
+                      key={column.key}
+                      column={column}
+                      sortKey={sortKey}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {reservations.length > 0 ? (
-                  reservations.map((reservation: any) => (
+                {sortedReservations.length > 0 ? (
+                  sortedReservations.map((reservation: any) => (
                     <tr key={reservation.id} className="border-b">
                       <td className="py-4 px-4">{reservation.username}</td>
                       <td className="py-4 px-4">{formatDateLocale(reservation.startDate)}</td>

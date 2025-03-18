@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { 
@@ -40,6 +40,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { formatDate } from "@/lib/utils/date-utils";
+import { SortableTableHeader, SortableColumn, SortDirection } from '@/components/ui/sortable-table-header';
 
 export default function AdminReservations() {
   const [year, setYear] = useState<string>("2025");
@@ -48,6 +49,12 @@ export default function AdminReservations() {
   const [adminMessage, setAdminMessage] = useState<string>("");
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const { toast } = useToast();
+  
+  // Estado para el ordenamiento de las tablas
+  const [pendingSortKey, setPendingSortKey] = useState<string | null>(null);
+  const [pendingSortDirection, setPendingSortDirection] = useState<SortDirection>(null);
+  const [historySortKey, setHistorySortKey] = useState<string | null>(null);
+  const [historySortDirection, setHistorySortDirection] = useState<SortDirection>(null);
   
   // Fetch pending reservation requests
   const { data: pendingReservations, isLoading: isPendingLoading } = useQuery({
@@ -120,9 +127,109 @@ export default function AdminReservations() {
     );
   };
 
-  // Default empty arrays if data is not loaded yet
-  const pendingList = pendingReservations || [];
-  const historyList = reservationHistory || [];
+  // Manejadores para la ordenación
+  const handlePendingSort = (key: string) => {
+    const isAsc = pendingSortKey === key && pendingSortDirection === 'asc';
+    setPendingSortKey(key);
+    setPendingSortDirection(isAsc ? 'desc' : 'asc');
+  };
+  
+  const handleHistorySort = (key: string) => {
+    const isAsc = historySortKey === key && historySortDirection === 'asc';
+    setHistorySortKey(key);
+    setHistorySortDirection(isAsc ? 'desc' : 'asc');
+  };
+  
+  // Definición de columnas para las tablas
+  const pendingColumns: SortableColumn[] = [
+    { key: 'username', label: 'Usuario' },
+    { key: 'startDate', label: 'Fecha Entrada' },
+    { key: 'endDate', label: 'Fecha Salida' },
+    { key: 'nights', label: 'Noches' },
+    { key: 'numberOfGuests', label: 'Personas' },
+    { key: 'notes', label: 'Notas' },
+  ];
+  
+  const historyColumns: SortableColumn[] = [
+    { key: 'username', label: 'Usuario' },
+    { key: 'startDate', label: 'Fecha Entrada' },
+    { key: 'endDate', label: 'Fecha Salida' },
+    { key: 'nights', label: 'Noches' },
+    { key: 'numberOfGuests', label: 'Personas' },
+    { key: 'notes', label: 'Notas' },
+    { key: 'status', label: 'Estado' },
+  ];
+  
+  // Ordenar las listas según los criterios seleccionados
+  const sortedPendingList = useMemo(() => {
+    const pendingList = pendingReservations || [];
+    if (!pendingSortKey || !pendingSortDirection) return pendingList;
+    
+    return [...pendingList].sort((a, b) => {
+      // Ordenar por noches
+      if (pendingSortKey === 'nights') {
+        const aNights = getNights(a.startDate, a.endDate);
+        const bNights = getNights(b.startDate, b.endDate);
+        return pendingSortDirection === 'asc' ? aNights - bNights : bNights - aNights;
+      }
+      
+      // Ordenar por fechas
+      if (pendingSortKey === 'startDate' || pendingSortKey === 'endDate') {
+        const aDate = new Date(a[pendingSortKey]).getTime();
+        const bDate = new Date(b[pendingSortKey]).getTime();
+        return pendingSortDirection === 'asc' ? aDate - bDate : bDate - aDate;
+      }
+      
+      // Ordenar strings y números
+      const aValue = a[pendingSortKey];
+      const bValue = b[pendingSortKey];
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return pendingSortDirection === 'asc' 
+          ? aValue.localeCompare(bValue) 
+          : bValue.localeCompare(aValue);
+      }
+      
+      return pendingSortDirection === 'asc' 
+        ? (aValue - bValue) 
+        : (bValue - aValue);
+    });
+  }, [pendingReservations, pendingSortKey, pendingSortDirection]);
+  
+  const sortedHistoryList = useMemo(() => {
+    const historyList = reservationHistory || [];
+    if (!historySortKey || !historySortDirection) return historyList;
+    
+    return [...historyList].sort((a, b) => {
+      // Ordenar por noches
+      if (historySortKey === 'nights') {
+        const aNights = getNights(a.startDate, a.endDate);
+        const bNights = getNights(b.startDate, b.endDate);
+        return historySortDirection === 'asc' ? aNights - bNights : bNights - aNights;
+      }
+      
+      // Ordenar por fechas
+      if (historySortKey === 'startDate' || historySortKey === 'endDate') {
+        const aDate = new Date(a[historySortKey]).getTime();
+        const bDate = new Date(b[historySortKey]).getTime();
+        return historySortDirection === 'asc' ? aDate - bDate : bDate - aDate;
+      }
+      
+      // Ordenar strings y números
+      const aValue = a[historySortKey];
+      const bValue = b[historySortKey];
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return historySortDirection === 'asc' 
+          ? aValue.localeCompare(bValue) 
+          : bValue.localeCompare(aValue);
+      }
+      
+      return historySortDirection === 'asc' 
+        ? (aValue - bValue) 
+        : (bValue - aValue);
+    });
+  }, [reservationHistory, historySortKey, historySortDirection]);
 
   return (
     <div className="container mx-auto px-4 sm:px-6 py-6 flex-grow">
