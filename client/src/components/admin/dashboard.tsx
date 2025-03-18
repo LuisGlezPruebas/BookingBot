@@ -234,7 +234,9 @@ export default function AdminDashboard() {
                     const monthCount = monthData?.count || 0;
                     // Usar 30 como valor máximo para el eje Y (aproximadamente un mes)
                     const maxDays = 30;
-                    const height = monthCount > 0 ? `${Math.min(100, (monthCount / maxDays) * 100)}%` : '0%';
+                    // Crear un height que sea exactamente proporcional a la escala (0-30 días)
+                    const heightPercentage = (monthCount / maxDays) * 100;
+                    const height = monthCount > 0 ? `${heightPercentage}%` : '0%';
                     const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
                     
                     return (
@@ -246,6 +248,7 @@ export default function AdminDashboard() {
                           className={`chart-bar w-full bg-primary rounded-t-sm transition-all duration-500 ${monthCount > 0 ? 'opacity-100' : 'opacity-0'}`} 
                           style={{ height }}
                           title={`${monthCount} noches en ${monthNames[index]}`}
+                          data-count={monthCount}
                         ></div>
                         <span className="text-xs text-muted-foreground mt-1">{monthNames[index]}</span>
                       </div>
