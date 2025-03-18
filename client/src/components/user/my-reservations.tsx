@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { 
@@ -58,6 +58,7 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { SortableTableHeader, SortableColumn, SortDirection } from '@/components/ui/sortable-table-header';
 
 // Schema para validar el formulario de edición
 const reservationSchema = z.object({
@@ -89,6 +90,10 @@ export default function MyReservations() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState<any>(null);
+  
+  // Estado para el ordenamiento de la tabla
+  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -247,8 +252,63 @@ export default function MyReservations() {
     const reservationStartDate = new Date(startDate);
     return reservationStartDate > today;
   };
+  
+  // Manejador para la ordenación
+  const handleSort = (key: string) => {
+    const isAsc = sortKey === key && sortDirection === 'asc';
+    setSortKey(key);
+    setSortDirection(isAsc ? 'desc' : 'asc');
+  };
 
-  const reservations = Array.isArray(userReservations) ? userReservations : [];
+  // Definición de columnas para la tabla
+  const columns: SortableColumn[] = [
+    { key: 'startDate', label: 'Fecha Entrada' },
+    { key: 'endDate', label: 'Fecha Salida' },
+    { key: 'nights', label: 'Noches' },
+    { key: 'numberOfGuests', label: 'Personas' },
+    { key: 'notes', label: 'Notas' },
+    { key: 'status', label: 'Estado' },
+  ];
+
+  // Ordenar las reservas según los criterios seleccionados
+  const sortedReservations = useMemo(() => {
+    // Asegurarnos de que userReservations es un array
+    const safeReservations = Array.isArray(userReservations) ? userReservations : [];
+    
+    if (!sortKey || !sortDirection) return safeReservations;
+    
+    return [...safeReservations].sort((a, b) => {
+      // Ordenar por noches
+      if (sortKey === 'nights') {
+        const aNights = getNights(a.startDate, a.endDate);
+        const bNights = getNights(b.startDate, b.endDate);
+        return sortDirection === 'asc' ? aNights - bNights : bNights - aNights;
+      }
+      
+      // Ordenar por fechas
+      if (sortKey === 'startDate' || sortKey === 'endDate') {
+        const aDate = new Date(a[sortKey]).getTime();
+        const bDate = new Date(b[sortKey]).getTime();
+        return sortDirection === 'asc' ? aDate - bDate : bDate - aDate;
+      }
+      
+      // Ordenar strings y números
+      const aValue = a[sortKey];
+      const bValue = b[sortKey];
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortDirection === 'asc' 
+          ? aValue.localeCompare(bValue) 
+          : bValue.localeCompare(aValue);
+      }
+      
+      return sortDirection === 'asc' 
+        ? (aValue - bValue) 
+        : (bValue - aValue);
+    });
+  }, [userReservations, sortKey, sortDirection, getNights]);
+
+  // No necesitamos la variable 'reservations' porque ahora usamos sortedReservations directamente
 
   return (
     <div className="container mx-auto px-4 sm:px-6 py-6 flex-grow">
@@ -277,17 +337,47 @@ export default function MyReservations() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-muted-foreground">Fecha Entrada</TableHead>
-                  <TableHead className="text-muted-foreground">Fecha Salida</TableHead>
-                  <TableHead className="text-muted-foreground">Noches</TableHead>
-                  <TableHead className="text-muted-foreground">Personas</TableHead>
-                  <TableHead className="text-muted-foreground">Notas</TableHead>
-                  <TableHead className="text-muted-foreground">Estado</TableHead>
+                  <SortableTableHeader
+                    column={columns[0]}
+                    sortKey={sortKey}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableTableHeader
+                    column={columns[1]}
+                    sortKey={sortKey}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableTableHeader
+                    column={columns[2]}
+                    sortKey={sortKey}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableTableHeader
+                    column={columns[3]}
+                    sortKey={sortKey}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableTableHeader
+                    column={columns[4]}
+                    sortKey={sortKey}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableTableHeader
+                    column={columns[5]}
+                    sortKey={sortKey}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
                   <TableHead className="text-muted-foreground">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {reservations.map((reservation: any) => (
+                {sortedReservations.map((reservation: any) => (
                   <TableRow key={reservation.id}>
                     <TableCell>{formatDate(reservation.startDate)}</TableCell>
                     <TableCell>{formatDate(reservation.endDate)}</TableCell>
@@ -349,7 +439,7 @@ export default function MyReservations() {
                     </TableCell>
                   </TableRow>
                 ))}
-                {reservations.length === 0 && (
+                {sortedReservations.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-4">
                       {isLoading 
