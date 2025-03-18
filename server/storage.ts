@@ -4,6 +4,7 @@ import {
   User, 
   InsertUser,
   UpdateReservationStatus,
+  UpdateReservation,
   ReservationStats
 } from "@shared/schema";
 import { calculateStats } from "../client/src/lib/utils/reservation-utils";
@@ -18,6 +19,8 @@ export interface IStorage {
   getReservation(id: number): Promise<Reservation | undefined>;
   createReservation(reservation: InsertReservation): Promise<Reservation>;
   updateReservationStatus(id: number, status: UpdateReservationStatus): Promise<Reservation | undefined>;
+  updateReservation(id: number, data: UpdateReservation): Promise<Reservation | undefined>;
+  cancelReservation(id: number): Promise<Reservation | undefined>;
   getReservationsByYear(year: string): Promise<Reservation[]>;
   getPendingReservationsByYear(year: string): Promise<Reservation[]>;
   getReservationHistoryByYear(year: string): Promise<Reservation[]>;
@@ -108,6 +111,48 @@ export class MemStorage implements IStorage {
     const updatedReservation: Reservation = {
       ...reservation,
       status: statusUpdate.status,
+    };
+    
+    this.reservations.set(id, updatedReservation);
+    return updatedReservation;
+  }
+  
+  async updateReservation(id: number, data: UpdateReservation): Promise<Reservation | undefined> {
+    const reservation = this.reservations.get(id);
+    if (!reservation) return undefined;
+    
+    // Solo se permiten modificaciones para reservas que no han pasado y que estén en estado aprobado
+    const currentDate = new Date();
+    if (new Date(reservation.startDate) <= currentDate) {
+      return undefined; // No se puede modificar una reserva que ya pasó
+    }
+    
+    const updatedReservation: Reservation = {
+      ...reservation,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      numberOfGuests: data.numberOfGuests,
+      notes: data.notes || reservation.notes,
+      status: "modified", // Cambiar a estado modificado para que el admin lo apruebe
+    };
+    
+    this.reservations.set(id, updatedReservation);
+    return updatedReservation;
+  }
+  
+  async cancelReservation(id: number): Promise<Reservation | undefined> {
+    const reservation = this.reservations.get(id);
+    if (!reservation) return undefined;
+    
+    // Solo se pueden cancelar reservas que no han pasado
+    const currentDate = new Date();
+    if (new Date(reservation.startDate) <= currentDate) {
+      return undefined; // No se puede cancelar una reserva que ya pasó
+    }
+    
+    const updatedReservation: Reservation = {
+      ...reservation,
+      status: "cancelled",
     };
     
     this.reservations.set(id, updatedReservation);

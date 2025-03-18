@@ -24,7 +24,7 @@ export const reservations = pgTable("reservations", {
   endDate: timestamp("end_date").notNull(),
   numberOfGuests: integer("number_of_guests").notNull(),
   notes: text("notes"),
-  status: text("status").notNull().default("pending"), // pending, approved, rejected
+  status: text("status").notNull().default("pending"), // pending, approved, rejected, modified, cancelled
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -38,8 +38,16 @@ export const insertReservationSchema = z.object({
 });
 
 export const updateReservationStatusSchema = z.object({
-  status: z.enum(["pending", "approved", "rejected"]),
+  status: z.enum(["pending", "approved", "rejected", "modified", "cancelled"]),
   adminMessage: z.string().optional() // Mensaje opcional del administrador
+});
+
+// Schema para modificación de reservas por el usuario
+export const updateReservationSchema = z.object({
+  startDate: z.string().transform(str => new Date(str)),
+  endDate: z.string().transform(str => new Date(str)),
+  numberOfGuests: z.number().int().min(1).max(10),
+  notes: z.string().optional(),
 });
 
 // Types
@@ -49,6 +57,7 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Reservation = typeof reservations.$inferSelect;
 export type InsertReservation = z.infer<typeof insertReservationSchema>;
 export type UpdateReservationStatus = z.infer<typeof updateReservationStatusSchema>;
+export type UpdateReservation = z.infer<typeof updateReservationSchema>;
 
 // Statistics type for dashboard
 export type ReservationStats = {
