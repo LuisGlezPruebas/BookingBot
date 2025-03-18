@@ -2,17 +2,16 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { getDaysInMonth, isPastDate } from "@/lib/utils/date-utils";
 
-// Colores para usuarios (en formato tailwind) - Colores llamativos
-const userColors = [
-  "bg-red-500 text-white",
-  "bg-blue-600 text-white",
-  "bg-amber-500 text-white",
-  "bg-pink-500 text-white",
-  "bg-purple-600 text-white",
-  "bg-emerald-500 text-white",
-  "bg-indigo-600 text-white",
-  "bg-orange-500 text-white"
-];
+// Colores para usuarios (en formato tailwind) - Colores llamativos y distintivos
+const userColorMap: Record<number, string> = {
+  1: "bg-slate-600 text-white", // Admin
+  2: "bg-red-500 text-white", // Luis Glez
+  3: "bg-blue-600 text-white", // David Glez
+  4: "bg-emerald-500 text-white", // Luis Glez Llobet
+  5: "bg-pink-500 text-white", // Martina
+  6: "bg-purple-600 text-white", // Juan
+  7: "bg-amber-500 text-white" // Mº Teresa
+};
 
 interface CalendarDayProps {
   date: string; // YYYY-MM-DD
@@ -91,8 +90,8 @@ function MonthView({ month, year, calendarData, userColors, usernames }: MonthVi
           
           if (!day.isPast) {
             if (day.status === "occupied" && day.userId) {
-              // Usar color más llamativo para el usuario
-              bgClass = userColors[day.userId] || "bg-red-500 text-white";
+              // Usar color asignado a cada usuario específico
+              bgClass = userColorMap[day.userId] || "bg-red-500 text-white";
               // Añadir log para verificar que se está detectando correctamente
               console.log(`Día ocupado: ${day.date} por usuario ${day.userId} (${usernames[day.userId] || 'Desconocido'})`);
             } else {
@@ -143,13 +142,8 @@ export default function AnnualCalendar({ year, calendarData, reservations }: Ann
       7: "Mº Teresa"
     };
     
-    // Asignar colores a todos los usuarios, no solo a los que tienen reservas
-    const colors: Record<number, string> = {};
-    for (let userId = 1; userId <= 7; userId++) {
-      colors[userId] = userColors[(userId - 1) % 8]; // 8 es el número total de colores
-    }
-    
-    setUserColors(colors);
+    // Asignar colores preestablecidos a todos los usuarios
+    setUserColors(userColorMap);
     
     // Combinar nombres predefinidos con los de las reservas
     const names: Record<number, string> = {...defaultUsernames};
@@ -231,10 +225,10 @@ export default function AnnualCalendar({ year, calendarData, reservations }: Ann
         
         {/* Leyenda de usuarios */}
         <div className="flex flex-wrap gap-2 mb-6">
-          {Object.entries(usernames).map(([userId, name], index) => (
+          {Object.entries(usernames).map(([userId, name]) => (
             <div key={`legend-${userId}`} className="flex items-center">
               <div 
-                className={`${userColors[Number(userId)] || userColors[0]} w-3 h-3 rounded-full mr-1`} 
+                className={`${userColorMap[Number(userId)] || "bg-gray-400"} w-3 h-3 rounded-full mr-1`} 
               ></div>
               <span className="text-xs text-muted-foreground">{name}</span>
             </div>
