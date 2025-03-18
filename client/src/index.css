@@ -103,6 +103,31 @@
     @apply bg-primary transition-all duration-300 ease-in-out;
   }
   
+  /* Estilos específicos para react-day-picker */
+  .reservation-calendar .rdp-day {
+    @apply cursor-pointer;
+  }
+  
+  .reservation-calendar .rdp-day[data-status="available"] {
+    @apply bg-green-100 text-green-800 hover:bg-green-200;
+  }
+  
+  .reservation-calendar .rdp-day[data-status="pending"] {
+    @apply bg-amber-100 text-amber-800;
+  }
+  
+  .reservation-calendar .rdp-day[data-status="occupied"] {
+    @apply bg-red-100 text-red-800;
+  }
+  
+  .reservation-calendar .rdp-day_disabled {
+    @apply opacity-40;
+  }
+  
+  .reservation-calendar .rdp-day_selected {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+  }
+  
   /* Carbon-styled calendar */
   .carbon-calendar {
     @apply bg-white rounded-md shadow-md;
