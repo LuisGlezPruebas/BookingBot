@@ -418,7 +418,6 @@ export default function MyReservations() {
                             return false;
                           }}
                           initialFocus
-                          weekStartsOn={1 as any} // 1 = lunes
                           className="reservation-calendar"
                         />
                       </PopoverContent>
@@ -479,7 +478,6 @@ export default function MyReservations() {
                             return false;
                           }}
                           initialFocus
-                          weekStartsOn={1 as any} // 1 = lunes
                           className="reservation-calendar"
                         />
                       </PopoverContent>

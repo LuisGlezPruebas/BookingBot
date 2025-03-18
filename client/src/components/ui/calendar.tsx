@@ -12,47 +12,14 @@ function Calendar({
   className,
   classNames,
   showOutsideDays = true,
-  modifiers,
-  modifiersClassNames,
   ...props
 }: CalendarProps) {
-  // Definimos modificadores por defecto para estados de reserva  
-  const defaultModifiers = {
-    available: (date: Date) => {
-      // Lógica por defecto, puede ser sobrescrita por props
-      return false;
-    },
-    pending: (date: Date) => {
-      // Lógica por defecto, puede ser sobrescrita por props
-      return false;
-    },
-    occupied: (date: Date) => {
-      // Lógica por defecto, puede ser sobrescrita por props
-      return false;
-    },
-    past: (date: Date) => {
-      return date < new Date();
-    },
-    ...modifiers
-  };
-
-  // Clases para los modificadores
-  const defaultModifiersClassNames = {
-    available: "bg-green-100 text-green-800 hover:bg-green-200",
-    pending: "bg-amber-100 text-amber-800",
-    occupied: "bg-red-100 text-red-800",
-    past: "opacity-40",
-    ...modifiersClassNames
-  };
-
   return (
     <DayPicker
       locale={es}
       weekStartsOn={1}
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
-      modifiers={defaultModifiers}
-      modifiersClassNames={defaultModifiersClassNames}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
