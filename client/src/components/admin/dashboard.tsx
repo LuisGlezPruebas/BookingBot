@@ -208,24 +208,24 @@ export default function AdminDashboard() {
           <CardContent className="p-6">
             <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Mes</h3>
             <div className="h-64 flex flex-col relative">
-              {/* Eje Y con números de días */}
+              {/* Eje Y con números de días - Ajustado para alinearse exactamente con las alturas del gráfico */}
               <div className="absolute left-0 right-0 top-0 h-full flex flex-col justify-between">
-                <div className="flex items-center h-6">
+                <div className="absolute top-0 left-0 right-0 flex items-center">
                   <span className="text-xs text-muted-foreground mr-2">31</span>
                   <div className="flex-grow border-t border-dashed border-muted-foreground/20"></div>
                 </div>
-                <div className="flex items-center h-6">
+                <div className="absolute top-[75px] left-0 right-0 flex items-center">
                   <span className="text-xs text-muted-foreground mr-2">15</span>
                   <div className="flex-grow border-t border-dashed border-muted-foreground/20"></div>
                 </div>
-                <div className="flex items-center h-6">
+                <div className="absolute bottom-0 left-0 right-0 flex items-center">
                   <span className="text-xs text-muted-foreground mr-2">0</span>
                   <div className="flex-grow border-t border-dashed border-muted-foreground/20"></div>
                 </div>
               </div>
               
               {/* Área del gráfico */}
-              <div className="relative flex-grow mt-3 ml-8">
+              <div className="relative flex-grow mt-3 ml-8" style={{ height: '150px' }}>
                 
                 {/* Gráfico de barras */}
                 <div className="h-full flex items-end justify-between space-x-2">
@@ -234,11 +234,15 @@ export default function AdminDashboard() {
                     const monthCount = monthData?.count || 0;
                     const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
                     
-                    // Altura exacta en píxeles - cada día es aproximadamente 4.8px de altura (150px / 31 días)
-                    // Este enfoque de píxeles fijos garantiza que la altura sea proporcional a los días
-                    const pixelHeight = monthCount * 4.8;
-                    // Asegurarnos de que la altura máxima sea de 150px (31 días)
-                    const safeHeight = Math.min(pixelHeight, 150);
+                    // La altura debe ser proporcional a los días según el contenedor
+                    // El área de visualización del gráfico tiene aproximadamente 150px de altura
+                    // Para 31 días, cada día debe ocupar aproximadamente 4.8px (150/31)
+                    // Sin embargo, ajustamos la altura para que se alinee correctamente con las marcas del eje Y
+                    
+                    // Altura proporcional: 0px para 0 días, 75px para 15 días, 150px para 31 días
+                    const containerHeight = 150;
+                    const heightPercentage = (monthCount / 31);
+                    const safeHeight = Math.max(monthCount > 0 ? 3 : 0, Math.round(containerHeight * heightPercentage));
                     
                     return (
                       <div key={index} className="flex flex-col items-center flex-1 relative h-full">
