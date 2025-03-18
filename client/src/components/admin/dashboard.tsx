@@ -99,41 +99,46 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="px-8 py-6">
       <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
       
       {/* 1. Calendario Anual */}
-      <AnnualCalendar year={currentYear} calendarData={calendarData} reservations={reservations} />
+      <div className="mb-8">
+        <h3 className="text-lg font-medium mb-4">Calendario Anual {currentYear}</h3>
+        <div className="bg-white rounded-lg shadow-sm">
+          <AnnualCalendar year={currentYear} calendarData={calendarData} reservations={reservations} />
+        </div>
+      </div>
       
       {/* 2. Tabla de Reservas Aprobadas */}
-      <Card className="bg-card shadow-sm mb-6">
-        <CardContent className="p-6">
-          <h3 className="text-lg font-medium text-foreground mb-4">Reservas Aprobadas</h3>
-          <div className="overflow-x-auto">
+      <div className="mb-8">
+        <h3 className="text-lg font-medium mb-4">Reservas Aprobadas</h3>
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="overflow-x-auto p-6">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-2 px-4 font-medium text-sm text-muted-foreground">Usuario</th>
-                  <th className="text-left py-2 px-4 font-medium text-sm text-muted-foreground">Entrada</th>
-                  <th className="text-left py-2 px-4 font-medium text-sm text-muted-foreground">Salida</th>
-                  <th className="text-left py-2 px-4 font-medium text-sm text-muted-foreground">Noches</th>
-                  <th className="text-left py-2 px-4 font-medium text-sm text-muted-foreground">Huéspedes</th>
+                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Usuario</th>
+                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Fecha Entrada</th>
+                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Fecha Salida</th>
+                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Noches</th>
+                  <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Personas</th>
                 </tr>
               </thead>
               <tbody>
                 {reservations.length > 0 ? (
                   reservations.map((reservation: any) => (
                     <tr key={reservation.id} className="border-b">
-                      <td className="py-3 px-4">{reservation.username}</td>
-                      <td className="py-3 px-4">{formatDateLocale(reservation.startDate)}</td>
-                      <td className="py-3 px-4">{formatDateLocale(reservation.endDate)}</td>
-                      <td className="py-3 px-4">{calculateNights(reservation.startDate, reservation.endDate)}</td>
-                      <td className="py-3 px-4">{reservation.numberOfGuests}</td>
+                      <td className="py-4 px-4">{reservation.username}</td>
+                      <td className="py-4 px-4">{formatDateLocale(reservation.startDate)}</td>
+                      <td className="py-4 px-4">{formatDateLocale(reservation.endDate)}</td>
+                      <td className="py-4 px-4">{calculateNights(reservation.startDate, reservation.endDate)}</td>
+                      <td className="py-4 px-4">{reservation.numberOfGuests}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="py-4 px-4 text-center text-muted-foreground">
+                    <td colSpan={5} className="py-6 px-4 text-center text-muted-foreground">
                       No hay reservas aprobadas para mostrar
                     </td>
                   </tr>
@@ -141,65 +146,91 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       
       {/* 3. Tarjetas de Estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatsCard
-          title="Reservas Totales"
-          value={statsData.totalReservations}
-          icon={<CalendarIcon className="h-6 w-6 text-primary" />}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-lg shadow-sm p-6 flex items-center">
+          <div className="mr-4 p-2 bg-primary/10 rounded-full">
+            <CalendarIcon className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Reservas Totales</p>
+            <h4 className="text-2xl font-bold mt-1">
+              {statsData.totalReservations}
+            </h4>
+          </div>
+        </div>
         
-        <StatsCard
-          title="Noches Ocupadas"
-          value={statsData.occupiedDays}
-          icon={<BarChart3 className="h-6 w-6 text-primary" />}
-        />
+        <div className="bg-white rounded-lg shadow-sm p-6 flex items-center">
+          <div className="mr-4 p-2 bg-primary/10 rounded-full">
+            <BarChart3 className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Noches Ocupadas</p>
+            <h4 className="text-2xl font-bold mt-1">
+              {statsData.occupiedDays}
+            </h4>
+          </div>
+        </div>
         
-        <StatsCard
-          title="Usuario Frecuente"
-          value={statsData.frequentUser}
-          icon={<User className="h-6 w-6 text-primary" />}
-        />
+        <div className="bg-white rounded-lg shadow-sm p-6 flex items-center">
+          <div className="mr-4 p-2 bg-primary/10 rounded-full">
+            <User className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Usuario Frecuente</p>
+            <h4 className="text-2xl font-bold mt-1">
+              {statsData.frequentUser}
+            </h4>
+          </div>
+        </div>
         
-        <StatsCard
-          title="Tasa de Ocupación"
-          value={statsData.occupancyRate}
-          icon={<Users className="h-6 w-6 text-primary" />}
-          suffix="%"
-        />
+        <div className="bg-white rounded-lg shadow-sm p-6 flex items-center">
+          <div className="mr-4 p-2 bg-primary/10 rounded-full">
+            <Users className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Tasa de Ocupación</p>
+            <h4 className="text-2xl font-bold mt-1">
+              {statsData.occupancyRate}<span className="text-sm font-normal ml-1">%</span>
+            </h4>
+          </div>
+        </div>
       </div>
       
       {/* 4. Gráficos de Estadísticas */}
-      <div className="grid grid-cols-1 gap-6">
-        {/* User Stats Chart */}
-        <Card className="bg-card shadow-sm">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Usuario</h3>
-            <div className="h-64 flex items-center justify-center">
-              <div className="w-full max-w-md">
-                {statsData.reservationsByUser.map((user: any, index: number) => {
+      <div className="mb-8">
+        <h3 className="text-lg font-medium mb-4">Noches Reservadas por Usuario</h3>
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="h-64 flex items-center justify-center">
+            <div className="w-full max-w-md">
+              {statsData.reservationsByUser.length > 0 ? (
+                statsData.reservationsByUser.map((user: any, index: number) => {
                   const maxCount = Math.max(...statsData.reservationsByUser.map((u: any) => u.count), 1);
                   const width = `${(user.count / maxCount) * 100}%`;
                   
                   return (
-                    <div key={index} className="mb-4">
-                      <div className="flex justify-between mb-1">
+                    <div key={index} className="mb-6">
+                      <div className="flex justify-between mb-2">
                         <span className="text-muted-foreground">{user.username}</span>
                         <span className="text-foreground font-medium">{user.count} noches</span>
                       </div>
-                      <div className="w-full bg-muted rounded-full h-2.5">
-                        <div className="bg-primary h-2.5 rounded-full" style={{ width }}></div>
+                      <div className="w-full bg-muted rounded-full h-3">
+                        <div className="bg-primary h-3 rounded-full" style={{ width }}></div>
                       </div>
                     </div>
                   );
-                })}
-              </div>
+                })
+              ) : (
+                <div className="text-center text-muted-foreground">
+                  No hay datos de reservas para mostrar
+                </div>
+              )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
