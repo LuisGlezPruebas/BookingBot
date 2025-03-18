@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { User, CalendarIcon, BarChart3, Users } from "lucide-react";
 import { ReservationStats } from '../../../shared/schema';
 import AnnualCalendar from './annual-calendar';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 // Componente para tarjetas de estadísticas
 interface StatsCardProps {
@@ -62,7 +64,10 @@ export default function AdminDashboard() {
     fetch(`/api/admin/reservations/${currentYear}`)
       .then(res => res.json())
       .then(data => {
-        setReservations(data);
+        console.log("Todas las reservaciones:", data);
+        const approvedReservations = data.filter((r: any) => r.status === 'approved');
+        console.log("Reservas aprobadas:", approvedReservations);
+        setReservations(approvedReservations);
       })
       .catch(error => {
         console.error("Error al cargar reservas:", error);
@@ -77,6 +82,20 @@ export default function AdminDashboard() {
     occupancyRate: 0,
     reservationsByMonth: Array.from({ length: 12 }, (_, i) => ({ month: i + 1, count: 0 })),
     reservationsByUser: []
+  };
+
+  // Calcular las noches para cada reserva
+  const calculateNights = (startDate: string, endDate: string): number => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+  
+  // Formatear fecha para mostrar en español
+  const formatDateLocale = (dateString: string): string => {
+    const date = new Date(dateString);
+    return format(date, 'dd MMM yyyy', { locale: es });
   };
 
   return (
@@ -110,9 +129,49 @@ export default function AdminDashboard() {
         />
       </div>
       
-      {/* Calendario Anual */}
+      {/* 1. Calendario Anual */}
       <AnnualCalendar year={currentYear} calendarData={calendarData} reservations={reservations} />
       
+      {/* 2. Tabla de Reservas Aprobadas */}
+      <Card className="bg-card shadow-sm mb-6">
+        <CardContent className="p-6">
+          <h3 className="text-lg font-medium text-foreground mb-4">Reservas Aprobadas</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-2 px-4 font-medium text-sm text-muted-foreground">Usuario</th>
+                  <th className="text-left py-2 px-4 font-medium text-sm text-muted-foreground">Entrada</th>
+                  <th className="text-left py-2 px-4 font-medium text-sm text-muted-foreground">Salida</th>
+                  <th className="text-left py-2 px-4 font-medium text-sm text-muted-foreground">Noches</th>
+                  <th className="text-left py-2 px-4 font-medium text-sm text-muted-foreground">Huéspedes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reservations.length > 0 ? (
+                  reservations.map((reservation: any) => (
+                    <tr key={reservation.id} className="border-b">
+                      <td className="py-3 px-4">{reservation.username}</td>
+                      <td className="py-3 px-4">{formatDateLocale(reservation.startDate)}</td>
+                      <td className="py-3 px-4">{formatDateLocale(reservation.endDate)}</td>
+                      <td className="py-3 px-4">{calculateNights(reservation.startDate, reservation.endDate)}</td>
+                      <td className="py-3 px-4">{reservation.numberOfGuests}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-4 px-4 text-center text-muted-foreground">
+                      No hay reservas aprobadas para mostrar
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* 3. Gráficos de Estadísticas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly Reservations Chart */}
         <Card className="bg-card shadow-sm">
@@ -138,7 +197,7 @@ export default function AdminDashboard() {
                   {/* Barras del gráfico */}
                   <div className="h-full flex items-end justify-between">
                     {Array(12).fill(0).map((_, index) => {
-                      const monthData = statsData.reservationsByMonth.find(m => m.month === index + 1);
+                      const monthData = statsData.reservationsByMonth.find((m: any) => m.month === index + 1);
                       const monthCount = monthData?.count || 0;
                       const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
                       
@@ -176,8 +235,8 @@ export default function AdminDashboard() {
             <h3 className="text-lg font-medium text-foreground mb-4">Noches Reservadas por Usuario</h3>
             <div className="h-64 flex items-center justify-center">
               <div className="w-full max-w-md">
-                {statsData.reservationsByUser.map((user, index: number) => {
-                  const maxCount = Math.max(...statsData.reservationsByUser.map(u => u.count), 1);
+                {statsData.reservationsByUser.map((user: any, index: number) => {
+                  const maxCount = Math.max(...statsData.reservationsByUser.map((u: any) => u.count), 1);
                   const width = `${(user.count / maxCount) * 100}%`;
                   
                   return (
