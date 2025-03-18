@@ -211,7 +211,7 @@ export default function AdminDashboard() {
               {/* Eje Y con números de días */}
               <div className="absolute left-0 right-0 top-0 h-full flex flex-col justify-between">
                 <div className="flex items-center h-6">
-                  <span className="text-xs text-muted-foreground mr-2">30</span>
+                  <span className="text-xs text-muted-foreground mr-2">31</span>
                   <div className="flex-grow border-t border-dashed border-muted-foreground/20"></div>
                 </div>
                 <div className="flex items-center h-6">
@@ -232,24 +232,27 @@ export default function AdminDashboard() {
                   {Array(12).fill(0).map((_, index) => {
                     const monthData = statsData.reservationsByMonth.find(m => m.month === index + 1);
                     const monthCount = monthData?.count || 0;
-                    // Usar 30 como valor máximo para el eje Y (aproximadamente un mes)
-                    const maxDays = 30;
-                    // Crear un height que sea exactamente proporcional a la escala (0-30 días)
-                    const heightPercentage = (monthCount / maxDays) * 100;
-                    const height = monthCount > 0 ? `${heightPercentage}%` : '0%';
                     const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
                     
+                    // Altura exacta en píxeles - cada día es aproximadamente 4.8px de altura (150px / 31 días)
+                    // Este enfoque de píxeles fijos garantiza que la altura sea proporcional a los días
+                    const pixelHeight = monthCount * 4.8;
+                    // Asegurarnos de que la altura máxima sea de 150px (31 días)
+                    const safeHeight = Math.min(pixelHeight, 150);
+                    
                     return (
-                      <div key={index} className="flex flex-col items-center flex-1 relative">
+                      <div key={index} className="flex flex-col items-center flex-1 relative h-full">
                         <div className="absolute top-0 -mt-6 text-xs font-semibold">
                           {monthCount > 0 ? monthCount : ''}
                         </div>
-                        <div 
-                          className={`chart-bar w-full bg-primary rounded-t-sm transition-all duration-500 ${monthCount > 0 ? 'opacity-100' : 'opacity-0'}`} 
-                          style={{ height }}
-                          title={`${monthCount} noches en ${monthNames[index]}`}
-                          data-count={monthCount}
-                        ></div>
+                        <div className="flex items-end h-full w-full">
+                          <div 
+                            className={`chart-bar w-full bg-primary rounded-t-sm transition-all duration-500 ${monthCount > 0 ? 'opacity-100' : 'opacity-0'}`} 
+                            style={{ height: `${safeHeight}px` }}
+                            title={`${monthCount} noches en ${monthNames[index]}`}
+                            data-count={monthCount}
+                          ></div>
+                        </div>
                         <span className="text-xs text-muted-foreground mt-1">{monthNames[index]}</span>
                       </div>
                     );
