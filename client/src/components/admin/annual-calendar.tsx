@@ -2,16 +2,16 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { getDaysInMonth, isPastDate } from "@/lib/utils/date-utils";
 
-// Colores para usuarios (en formato tailwind)
+// Colores para usuarios (en formato tailwind) - Colores llamativos
 const userColors = [
-  "bg-red-500",
-  "bg-blue-500",
-  "bg-green-500",
-  "bg-yellow-500",
-  "bg-purple-500",
-  "bg-pink-500",
-  "bg-indigo-500",
-  "bg-orange-500"
+  "bg-red-500 text-white",
+  "bg-blue-600 text-white",
+  "bg-amber-500 text-white",
+  "bg-pink-500 text-white",
+  "bg-purple-600 text-white",
+  "bg-emerald-500 text-white",
+  "bg-indigo-600 text-white",
+  "bg-orange-500 text-white"
 ];
 
 interface CalendarDayProps {
@@ -91,7 +91,10 @@ function MonthView({ month, year, calendarData, userColors, usernames }: MonthVi
           
           if (!day.isPast) {
             if (day.status === "occupied" && day.userId) {
-              bgClass = userColors[day.userId] || "bg-green-100"; // Color del usuario
+              // Usar color más llamativo para el usuario
+              bgClass = userColors[day.userId] || "bg-red-500 text-white";
+              // Añadir log para verificar que se está detectando correctamente
+              console.log(`Día ocupado: ${day.date} por usuario ${day.userId} (${usernames[day.userId] || 'Desconocido'})`);
             } else {
               bgClass = "bg-green-100"; // Disponible
             }
@@ -124,18 +127,34 @@ export default function AnnualCalendar({ year, calendarData, reservations }: Ann
   const [usernames, setUsernames] = useState<Record<number, string>>({});
   
   useEffect(() => {
-    // Construir un mapa de usuario -> color
-    const userIds = Array.from(new Set(reservations.map((r: any) => r.userId)));
-    const colors: Record<number, string> = {};
+    // Verificar qué reservas están aprobadas
+    console.log("Todas las reservaciones:", reservations);
+    const approvedReservations = reservations.filter((r: any) => r.status === 'approved');
+    console.log("Reservas aprobadas:", approvedReservations);
     
-    userIds.forEach((userId: number, index: number) => {
-      colors[userId] = userColors[index % 8]; // 8 es el número total de colores
-    });
+    // Predefinir todos los usuarios conocidos (IDs 1-6 en storage.ts)
+    const defaultUsernames: Record<number, string> = {
+      1: "Admin",
+      2: "Luis Glez",
+      3: "David Glez",
+      4: "Luis Glez Llobet",
+      5: "Martina",
+      6: "Juan",
+      7: "Mº Teresa"
+    };
+    
+    // Asignar colores a todos los usuarios, no solo a los que tienen reservas
+    const colors: Record<number, string> = {};
+    for (let userId = 1; userId <= 7; userId++) {
+      colors[userId] = userColors[(userId - 1) % 8]; // 8 es el número total de colores
+    }
     
     setUserColors(colors);
     
-    // Construir un mapa de usuario -> nombre
-    const names: Record<number, string> = {};
+    // Combinar nombres predefinidos con los de las reservas
+    const names: Record<number, string> = {...defaultUsernames};
+    
+    // Añadir nombres de las reservas (por si hubiera usuarios nuevos)
     reservations.forEach((r: any) => {
       if (r.username && r.userId) {
         names[r.userId] = r.username;
@@ -153,12 +172,15 @@ export default function AnnualCalendar({ year, calendarData, reservations }: Ann
         
         // Encontrar SOLO reservas APROBADAS que incluyen esta fecha
         const dayReservations = reservations.filter((r: any) => {
-          const startDate = new Date(r.startDate);
-          const endDate = new Date(r.endDate);
-          const currentDate = new Date(day.date);
+          if (!r.startDate || !r.endDate || !day.date || r.status !== 'approved') return false;
           
-          // Filtrar estrictamente por estado 'approved'
-          return currentDate >= startDate && currentDate <= endDate && r.status === 'approved';
+          // Convertir fechas al formato YYYY-MM-DD para comparar correctamente
+          const startDateStr = new Date(r.startDate).toISOString().split('T')[0];
+          const endDateStr = new Date(r.endDate).toISOString().split('T')[0];
+          const currentDateStr = day.date;
+          
+          // Comprobar si la fecha actual está entre la fecha de inicio y fin de la reserva
+          return currentDateStr >= startDateStr && currentDateStr <= endDateStr;
         });
         
         // Si hay reservas para esta fecha, usa el ID del usuario y reserva
