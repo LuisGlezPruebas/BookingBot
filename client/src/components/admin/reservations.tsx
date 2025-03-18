@@ -260,17 +260,47 @@ export default function AdminReservations() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-muted-foreground">Usuario</TableHead>
-                    <TableHead className="text-muted-foreground">Fecha Entrada</TableHead>
-                    <TableHead className="text-muted-foreground">Fecha Salida</TableHead>
-                    <TableHead className="text-muted-foreground">Noches</TableHead>
-                    <TableHead className="text-muted-foreground">Personas</TableHead>
-                    <TableHead className="text-muted-foreground">Notas</TableHead>
+                    <SortableTableHeader
+                      column={pendingColumns[0]}
+                      sortKey={pendingSortKey}
+                      sortDirection={pendingSortDirection}
+                      onSort={handlePendingSort}
+                    />
+                    <SortableTableHeader
+                      column={pendingColumns[1]}
+                      sortKey={pendingSortKey}
+                      sortDirection={pendingSortDirection}
+                      onSort={handlePendingSort}
+                    />
+                    <SortableTableHeader
+                      column={pendingColumns[2]}
+                      sortKey={pendingSortKey}
+                      sortDirection={pendingSortDirection}
+                      onSort={handlePendingSort}
+                    />
+                    <SortableTableHeader
+                      column={pendingColumns[3]}
+                      sortKey={pendingSortKey}
+                      sortDirection={pendingSortDirection}
+                      onSort={handlePendingSort}
+                    />
+                    <SortableTableHeader
+                      column={pendingColumns[4]}
+                      sortKey={pendingSortKey}
+                      sortDirection={pendingSortDirection}
+                      onSort={handlePendingSort}
+                    />
+                    <SortableTableHeader
+                      column={pendingColumns[5]}
+                      sortKey={pendingSortKey}
+                      sortDirection={pendingSortDirection}
+                      onSort={handlePendingSort}
+                    />
                     <TableHead className="text-muted-foreground">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(Array.isArray(pendingList) ? pendingList : []).map((reservation: any) => (
+                  {(Array.isArray(sortedPendingList) ? sortedPendingList : []).map((reservation: any) => (
                     <TableRow key={reservation.id}>
                       <TableCell>{reservation.username}</TableCell>
                       <TableCell>{formatDate(reservation.startDate)}</TableCell>
@@ -302,7 +332,7 @@ export default function AdminReservations() {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {(!Array.isArray(pendingList) || pendingList.length === 0) && (
+                  {(!Array.isArray(sortedPendingList) || sortedPendingList.length === 0) && (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center py-4">
                         {isPendingLoading 
@@ -327,17 +357,52 @@ export default function AdminReservations() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-muted-foreground">Usuario</TableHead>
-                    <TableHead className="text-muted-foreground">Fecha Entrada</TableHead>
-                    <TableHead className="text-muted-foreground">Fecha Salida</TableHead>
-                    <TableHead className="text-muted-foreground">Noches</TableHead>
-                    <TableHead className="text-muted-foreground">Personas</TableHead>
-                    <TableHead className="text-muted-foreground">Notas</TableHead>
-                    <TableHead className="text-muted-foreground">Estado</TableHead>
+                    <SortableTableHeader
+                      column={historyColumns[0]}
+                      sortKey={historySortKey}
+                      sortDirection={historySortDirection}
+                      onSort={handleHistorySort}
+                    />
+                    <SortableTableHeader
+                      column={historyColumns[1]}
+                      sortKey={historySortKey}
+                      sortDirection={historySortDirection}
+                      onSort={handleHistorySort}
+                    />
+                    <SortableTableHeader
+                      column={historyColumns[2]}
+                      sortKey={historySortKey}
+                      sortDirection={historySortDirection}
+                      onSort={handleHistorySort}
+                    />
+                    <SortableTableHeader
+                      column={historyColumns[3]}
+                      sortKey={historySortKey}
+                      sortDirection={historySortDirection}
+                      onSort={handleHistorySort}
+                    />
+                    <SortableTableHeader
+                      column={historyColumns[4]}
+                      sortKey={historySortKey}
+                      sortDirection={historySortDirection}
+                      onSort={handleHistorySort}
+                    />
+                    <SortableTableHeader
+                      column={historyColumns[5]}
+                      sortKey={historySortKey}
+                      sortDirection={historySortDirection}
+                      onSort={handleHistorySort}
+                    />
+                    <SortableTableHeader
+                      column={historyColumns[6]}
+                      sortKey={historySortKey}
+                      sortDirection={historySortDirection}
+                      onSort={handleHistorySort}
+                    />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(Array.isArray(historyList) ? historyList : []).map((reservation: any) => (
+                  {(Array.isArray(sortedHistoryList) ? sortedHistoryList : []).map((reservation: any) => (
                     <TableRow key={reservation.id}>
                       <TableCell>{reservation.username}</TableCell>
                       <TableCell>{formatDate(reservation.startDate)}</TableCell>
@@ -365,7 +430,7 @@ export default function AdminReservations() {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {(!Array.isArray(historyList) || historyList.length === 0) && (
+                  {(!Array.isArray(sortedHistoryList) || sortedHistoryList.length === 0) && (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center py-4">
                         {isHistoryLoading 
