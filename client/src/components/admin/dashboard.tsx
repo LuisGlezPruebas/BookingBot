@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { User, CalendarIcon, BarChart3, Users } from "lucide-react";
 import { ReservationStats } from '../../../shared/schema';
+import AnnualCalendar from './annual-calendar';
 
 // Componente para tarjetas de estadísticas
 interface StatsCardProps {
@@ -30,10 +31,12 @@ function StatsCard({ title, value, icon, suffix }: StatsCardProps) {
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = React.useState<ReservationStats | null>(null);
-  const [currentYear, setCurrentYear] = React.useState<string>(new Date().getFullYear().toString());
+  const [stats, setStats] = useState<ReservationStats | null>(null);
+  const [currentYear, setCurrentYear] = useState<string>(new Date().getFullYear().toString());
+  const [calendarData, setCalendarData] = useState<any[]>([]);
+  const [reservations, setReservations] = useState<any[]>([]);
   
-  React.useEffect(() => {
+  useEffect(() => {
     // Cargar estadísticas para el año actual
     fetch(`/api/admin/stats/${currentYear}`)
       .then(res => res.json())
@@ -43,6 +46,26 @@ export default function AdminDashboard() {
       })
       .catch(error => {
         console.error("Error al cargar estadísticas:", error);
+      });
+
+    // Cargar datos de calendario
+    fetch(`/api/user/calendar/${currentYear}`)
+      .then(res => res.json())
+      .then(data => {
+        setCalendarData(data);
+      })
+      .catch(error => {
+        console.error("Error al cargar datos del calendario:", error);
+      });
+
+    // Cargar reservas aprobadas
+    fetch(`/api/admin/reservations/${currentYear}`)
+      .then(res => res.json())
+      .then(data => {
+        setReservations(data);
+      })
+      .catch(error => {
+        console.error("Error al cargar reservas:", error);
       });
   }, [currentYear]);
 
@@ -86,6 +109,9 @@ export default function AdminDashboard() {
           suffix="%"
         />
       </div>
+      
+      {/* Calendario Anual */}
+      <AnnualCalendar year={currentYear} calendarData={calendarData} reservations={reservations} />
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly Reservations Chart */}
