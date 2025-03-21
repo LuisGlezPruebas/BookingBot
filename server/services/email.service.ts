@@ -4,7 +4,7 @@ import { Reservation } from '../../shared/schema';
 /**
  * Configuración para el servicio de email
  */
-const EMAIL_FROM = 'luisglez.pruebas@gmail.com';
+const EMAIL_FROM = '"Reservas Casa Tamariu" <luisglez.pruebas@gmail.com>';
 const ADMIN_EMAIL = 'luisglez.pruebas@gmail.com'; 
 const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 
@@ -12,7 +12,7 @@ const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: EMAIL_FROM,
+    user: 'luisglez.pruebas@gmail.com',
     pass: EMAIL_PASSWORD
   }
 });
