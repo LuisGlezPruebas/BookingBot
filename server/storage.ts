@@ -130,7 +130,30 @@ export class MemStorage implements IStorage {
     this.createUser({ username: "Juan", password: "", isAdmin: false });
     this.createUser({ username: "Mº Teresa", password: "", isAdmin: false });
     
-    // No sample reservations - starting with a clean database
+    // Añadir algunas reservas pendientes de muestra para probar las notificaciones
+    this.createReservation({
+      userId: 2, // Luis Glez
+      startDate: "2025-05-01",
+      endDate: "2025-05-05",
+      notes: "Fin de semana en mayo",
+      status: "pending"
+    });
+    
+    this.createReservation({
+      userId: 3, // David Glez
+      startDate: "2025-06-15",
+      endDate: "2025-06-20",
+      notes: "Vacaciones de verano",
+      status: "pending"
+    });
+    
+    this.createReservation({
+      userId: 5, // Martina
+      startDate: "2025-07-10",
+      endDate: "2025-07-15",
+      notes: "Semana en julio",
+      status: "pending"
+    });
   }
 
   // User operations
@@ -174,12 +197,13 @@ export class MemStorage implements IStorage {
       userId: reservationData.userId,
       startDate: reservationData.startDate,
       endDate: reservationData.endDate,
-      numberOfGuests: reservationData.numberOfGuests,
+      numberOfGuests: reservationData.numberOfGuests || 1,
       notes: reservationData.notes || null,
-      status: "pending",
+      status: reservationData.status || "pending",
       createdAt: now,
     };
     
+    console.log(`Creando reserva: ${JSON.stringify(reservation)}`);
     this.reservations.set(id, reservation);
     return reservation;
   }

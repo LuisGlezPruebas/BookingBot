@@ -1,7 +1,9 @@
 import { Link } from "wouter";
-import { Building, LogOut, User } from "lucide-react";
+import { Building, LogOut, User, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
+import { useNotifications } from "@/contexts/notification-context";
+import { NotificationBadge } from "@/components/ui/notification-badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect } from "react";
 
@@ -13,6 +15,7 @@ interface HeaderProps {
 
 export default function Header({ userType, activeTab, onTabChange }: HeaderProps) {
   const { logout } = useAuth();
+  const { pendingReservationsCount } = useNotifications();
   const [username, setUsername] = useState<string>("Usuario");
 
   // Cargar el nombre del usuario desde localStorage
@@ -42,6 +45,17 @@ export default function Header({ userType, activeTab, onTabChange }: HeaderProps
                   <User className="text-muted-foreground h-5 w-5 mr-2" />
                   <span className="text-muted-foreground">Admin</span>
                 </div>
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-primary relative"
+                    onClick={() => onTabChange('reservations')}
+                  >
+                    <Bell className="h-5 w-5" />
+                    <NotificationBadge count={pendingReservationsCount} />
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="flex items-center space-x-4">
@@ -55,7 +69,7 @@ export default function Header({ userType, activeTab, onTabChange }: HeaderProps
               variant="ghost"
               size="icon"
               onClick={handleLogout}
-              className="text-muted-foreground hover:text-primary"
+              className="text-muted-foreground hover:text-primary ml-2"
             >
               <LogOut className="h-5 w-5" />
             </Button>
@@ -74,9 +88,14 @@ export default function Header({ userType, activeTab, onTabChange }: HeaderProps
               </TabsTrigger>
               <TabsTrigger
                 value="reservations"
-                className={`py-4 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=inactive]:text-muted-foreground data-[state=inactive]:border-transparent`}
+                className={`py-4 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=inactive]:text-muted-foreground data-[state=inactive]:border-transparent relative`}
               >
                 Gestión de Reservas
+                {pendingReservationsCount > 0 && (
+                  <span className="ml-2 inline-flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-xs font-medium w-5 h-5 min-w-[1.25rem]">
+                    {pendingReservationsCount > 99 ? '99+' : pendingReservationsCount}
+                  </span>
+                )}
               </TabsTrigger>
             </TabsList>
           </Tabs>
