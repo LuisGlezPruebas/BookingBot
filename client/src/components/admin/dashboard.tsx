@@ -6,6 +6,14 @@ import AnnualCalendar from './annual-calendar';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { SortableTableHeader, SortableColumn, SortDirection } from '@/components/ui/sortable-table-header';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { getAvailableYears } from '@/lib/utils/date-utils';
 
 // Componente para tarjetas de estadísticas
 interface StatsCardProps {
@@ -156,7 +164,24 @@ export default function AdminDashboard() {
 
   return (
     <div className="px-8 py-6">
-      <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Dashboard</h2>
+        <div className="flex items-center">
+          <label htmlFor="dashboard-year" className="mr-2 text-muted-foreground">
+            Año:
+          </label>
+          <Select value={currentYear} onValueChange={setCurrentYear}>
+            <SelectTrigger className="w-[100px]" id="dashboard-year">
+              <SelectValue placeholder="Año" />
+            </SelectTrigger>
+            <SelectContent>
+              {getAvailableYears().map((year) => (
+                <SelectItem key={year} value={year}>{year}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
       
       {/* 1. Calendario Anual */}
       <div className="mb-8">
