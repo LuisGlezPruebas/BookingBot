@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { getAvailableYears } from "@/lib/utils/date-utils";
 import { 
   Card, 
   CardContent 
@@ -53,7 +54,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { CalendarIcon, Pencil, Trash2 } from "lucide-react";
-import { formatDate, toISODateString } from "@/lib/utils/date-utils";
+import { formatDate, toISODateString, calculateNights } from "@/lib/utils/date-utils";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -323,9 +324,9 @@ export default function MyReservations() {
               <SelectValue placeholder="Año" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="2023">2023</SelectItem>
-              <SelectItem value="2024">2024</SelectItem>
-              <SelectItem value="2025">2025</SelectItem>
+              {getAvailableYears().map((year) => (
+                <SelectItem key={year} value={year}>{year}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
