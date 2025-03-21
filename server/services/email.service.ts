@@ -156,7 +156,7 @@ export class EmailService {
       switch (reservation.status) {
         case 'approved':
           statusText = 'aprobada';
-          statusMessage = 'Ha sido aprobada. Te esperamos en la casa de Tamariu.';
+          statusMessage = '';  // El mensaje para aprobaciones ahora está en el template especial
           break;
         case 'rejected':
           statusText = 'rechazada';
@@ -175,11 +175,42 @@ export class EmailService {
           statusMessage = 'El estado de tu reserva ha sido actualizado.';
       }
       
-      const mailOptions = {
-        from: EMAIL_FROM,
-        to: userEmail,
-        subject: `Tu reserva ha sido ${statusText}`,
-        html: `
+      // Contenido HTML específico para reservas aprobadas
+      let htmlContent = '';
+      
+      if (reservation.status === 'approved') {
+        htmlContent = `
+          <p>Hola ${username},</p>
+          
+          <p>Nos alegra informarte que tu reserva ha sido aprobada 🎉</p>
+          <p>Aquí tienes los detalles:</p>
+          
+          <p>🗓 Fecha de entrada: ${startDateFormatted}</p>
+          <p>🗓 Fecha de salida: ${endDateFormatted}</p>
+          <p>⏳ Duración: ${nights} noche${nights !== 1 ? 's' : ''}</p>
+          <p>👥 Número de huéspedes: ${reservation.numberOfGuests}</p>
+          <p>📌 Estado: APROBADA</p>
+          
+          <p>🙌 Recordamos las normas de uso de la casa:</p>
+          <ul>
+            <li>🏡 La casa es de Maria Teresa, nuestra madre y abuela. Por favor, trátala con el cariño y el respeto que merece.</li>
+            <li>📆 Si no vas a usar tu reserva, te pedimos que la modifiques o canceles lo antes posible para que otros puedan aprovecharla.</li>
+            <li>🧹 Es importante dejar la casa recogida y limpia al salir. ¡Así todos la disfrutamos mejor!</li>
+            <li>✨ (Opcional) Si quieres que la casa esté preparada a tu llegada, puedes contactar con la persona de limpieza. Este servicio corre por cuenta de quien hace la reserva.</li>
+            <li>🚨 (Obligatorio) Al dejar la casa, es necesario contactar con una limpiadora externa para que quede en condiciones. El coste lo asume la persona que reservó.</li>
+            <li>📞 Nombre y teléfono de la persona de limpieza: Por determinar</li>
+          </ul>
+          
+          <p>Esperamos que disfrutes mucho de tu estancia 💛</p>
+          <p>¡Gracias por ayudarnos a cuidar este espacio tan especial para la familia!</p>
+          
+          ${adminMessage ? `<p><strong>Mensaje del administrador:</strong> ${adminMessage}</p>` : ''}
+          
+          <p>Un saludo,<br>Sistema de Reservas 🗓️</p>
+        `;
+      } else {
+        // HTML para otros estados (rechazado, modificado, cancelado, etc.)
+        htmlContent = `
           <h1>Actualización de estado de tu reserva</h1>
           <p>Hola ${username},</p>
           
@@ -198,7 +229,14 @@ export class EmailService {
           ${adminMessage ? `<p><strong>Mensaje del administrador:</strong> ${adminMessage}</p>` : ''}
           
           <p>Gracias,<br>Sistema de Reservas</p>
-        `
+        `;
+      }
+      
+      const mailOptions = {
+        from: EMAIL_FROM,
+        to: userEmail,
+        subject: `Tu reserva ha sido ${statusText}`,
+        html: htmlContent
       };
       
       await transporter.sendMail(mailOptions);
