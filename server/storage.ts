@@ -133,24 +133,24 @@ export class MemStorage implements IStorage {
     // Añadir algunas reservas pendientes de muestra para probar las notificaciones
     this.createReservation({
       userId: 2, // Luis Glez
-      startDate: "2025-05-01",
-      endDate: "2025-05-05",
+      startDate: new Date("2025-05-01"),
+      endDate: new Date("2025-05-05"),
       notes: "Fin de semana en mayo",
       status: "pending"
     });
     
     this.createReservation({
       userId: 3, // David Glez
-      startDate: "2025-06-15",
-      endDate: "2025-06-20",
+      startDate: new Date("2025-06-15"),
+      endDate: new Date("2025-06-20"),
       notes: "Vacaciones de verano",
       status: "pending"
     });
     
     this.createReservation({
       userId: 5, // Martina
-      startDate: "2025-07-10",
-      endDate: "2025-07-15",
+      startDate: new Date("2025-07-10"),
+      endDate: new Date("2025-07-15"),
       notes: "Semana en julio",
       status: "pending"
     });

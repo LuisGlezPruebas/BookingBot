@@ -35,6 +35,7 @@ export const insertReservationSchema = z.object({
   endDate: z.string().transform(str => new Date(str)),
   numberOfGuests: z.number(),
   notes: z.string().optional(),
+  status: z.enum(["pending", "approved", "rejected", "modified", "cancelled"]).optional(),
 });
 
 export const updateReservationStatusSchema = z.object({
