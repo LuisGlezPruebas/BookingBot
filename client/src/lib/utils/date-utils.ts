@@ -46,3 +46,24 @@ export function getDaysInMonth(year: number, month: number): number {
 export function toISODateString(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
+
+/**
+ * Generate an array of available years for reservations
+ * Initially showing 2025-2028, and then adding future years automatically as time passes
+ */
+export function getAvailableYears(): string[] {
+  const currentYear = new Date().getFullYear();
+  const startYear = 2025; // Año inicial fijo
+  const yearsToShow = 4; // Mostrar 4 años por delante
+  
+  // Calculamos el año final basándonos en el año actual
+  const maxYear = Math.max(startYear + yearsToShow - 1, currentYear + yearsToShow - 1);
+  
+  // Generamos el array de años disponibles
+  const years: string[] = [];
+  for (let year = startYear; year <= maxYear; year++) {
+    years.push(year.toString());
+  }
+  
+  return years;
+}

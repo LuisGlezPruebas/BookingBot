@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
+import { getAvailableYears } from "@/lib/utils/date-utils";
 import { 
   Check, 
   X,
@@ -248,9 +249,9 @@ export default function AdminReservations() {
                 <SelectValue placeholder="Año" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="2023">2023</SelectItem>
-                <SelectItem value="2024">2024</SelectItem>
-                <SelectItem value="2025">2025</SelectItem>
+                {getAvailableYears().map(yearOption => (
+                  <SelectItem key={yearOption} value={yearOption}>{yearOption}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
