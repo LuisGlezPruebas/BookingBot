@@ -91,8 +91,6 @@ function MonthView({ month, year, calendarData, userColors, usernames }: MonthVi
             if (day.status === "occupied" && day.userId) {
               // Usar color asignado a cada usuario específico
               bgClass = userColorMap[day.userId] || "bg-red-500 text-white";
-              // Añadir log para verificar que se está detectando correctamente
-              console.log(`Día ocupado: ${day.date} por usuario ${day.userId} (${usernames[day.userId] || 'Desconocido'})`);
             } else {
               bgClass = "bg-green-100"; // Disponible
             }
@@ -125,12 +123,9 @@ export default function AnnualCalendar({ year, calendarData, reservations }: Ann
   const [usernames, setUsernames] = useState<Record<number, string>>({});
   
   useEffect(() => {
-    console.log("Datos recibidos para calendar:", calendarData);
-    console.log("Reservaciones recibidas:", reservations);
-    
     // Verificar qué reservas están aprobadas
-    const approvedReservations = Array.isArray(reservations) ? 
-      reservations.filter((r: any) => r.status === 'approved') : [];
+    console.log("Todas las reservaciones:", reservations);
+    const approvedReservations = reservations.filter((r: any) => r.status === 'approved');
     console.log("Reservas aprobadas:", approvedReservations);
     
     // Predefinir todos los usuarios conocidos (excepto Admin)
@@ -150,13 +145,11 @@ export default function AnnualCalendar({ year, calendarData, reservations }: Ann
     const names: Record<number, string> = {...defaultUsernames};
     
     // Añadir nombres de las reservas (por si hubiera usuarios nuevos)
-    if (Array.isArray(reservations)) {
-      reservations.forEach((r: any) => {
-        if (r.username && r.userId) {
-          names[r.userId] = r.username;
-        }
-      });
-    }
+    reservations.forEach((r: any) => {
+      if (r.username && r.userId) {
+        names[r.userId] = r.username;
+      }
+    });
     
     setUsernames(names);
     
@@ -164,31 +157,21 @@ export default function AnnualCalendar({ year, calendarData, reservations }: Ann
     const processed: CalendarDayProps[] = [];
     
     if (Array.isArray(calendarData)) {
-      console.log(`Procesando ${calendarData.length} días del calendario`);
-      
       calendarData.forEach((day: any) => {
-        if (!day || !day.date) {
-          console.log("Día inválido sin fecha:", day);
-          return;
-        }
+        if (!day || !day.date) return;
         
         // Encontrar SOLO reservas APROBADAS que incluyen esta fecha
-        const dayReservations = Array.isArray(reservations) ? 
-          reservations.filter((r: any) => {
-            if (!r.startDate || !r.endDate || !day.date || r.status !== 'approved') return false;
-            
-            // Convertir fechas al formato YYYY-MM-DD para comparar correctamente
-            const startDateStr = new Date(r.startDate).toISOString().split('T')[0];
-            const endDateStr = new Date(r.endDate).toISOString().split('T')[0];
-            const currentDateStr = day.date;
-            
-            // Comprobar si la fecha actual está entre la fecha de inicio y fin de la reserva
-            const isInRange = currentDateStr >= startDateStr && currentDateStr <= endDateStr;
-            if (isInRange) {
-              console.log(`Encontrada reserva para ${day.date} - Usuario: ${r.userId}, Reserva: ${r.id}`);
-            }
-            return isInRange;
-          }) : [];
+        const dayReservations = reservations.filter((r: any) => {
+          if (!r.startDate || !r.endDate || !day.date || r.status !== 'approved') return false;
+          
+          // Convertir fechas al formato YYYY-MM-DD para comparar correctamente
+          const startDateStr = new Date(r.startDate).toISOString().split('T')[0];
+          const endDateStr = new Date(r.endDate).toISOString().split('T')[0];
+          const currentDateStr = day.date;
+          
+          // Comprobar si la fecha actual está entre la fecha de inicio y fin de la reserva
+          return currentDateStr >= startDateStr && currentDateStr <= endDateStr;
+        });
         
         // Si hay reservas para esta fecha, usa el ID del usuario y reserva
         if (dayReservations.length > 0) {
@@ -209,11 +192,8 @@ export default function AnnualCalendar({ year, calendarData, reservations }: Ann
           });
         }
       });
-    } else {
-      console.log("calendarData no es un array:", calendarData);
     }
     
-    console.log(`Procesados ${processed.length} días con datos de ocupación`);
     setProcessedData(processed);
   }, [calendarData, reservations]);
   
