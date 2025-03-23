@@ -11,10 +11,19 @@ export default function UserPage() {
   const [, setLocation] = useLocation();
 
   useEffect(() => {
+    // Verificar si hay datos de usuario en localStorage
+    const storedUserId = localStorage.getItem('userId');
+    const storedUsername = localStorage.getItem('username');
+    
     if (!isAuthenticated) {
-      login("user"); // Auto-login as user Luis Glez
+      login("user");
+      
+      // Si no hay ID de usuario almacenado, redirigir a la selección de usuario
+      if (!storedUserId || !storedUsername) {
+        setLocation('/');
+      }
     }
-  }, [isAuthenticated, login]);
+  }, [isAuthenticated, login, setLocation]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
