@@ -1,22 +1,10 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import cors from "cors";
-
-// Obtener variables de entorno
-const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
-const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
-const nodeEnv = process.env.NODE_ENV || 'development';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-// Configurar CORS para permitir solicitudes del frontend
-app.use(cors({
-  origin: corsOrigin,
-  credentials: true
-}));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -68,16 +56,14 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Usar el puerto configurado en las variables de entorno
   server.listen(
     {
-      port,
+      port: 5000,
       host: "0.0.0.0",
       reusePort: true,
     },
     () => {
-      log(`serving on port ${port} in ${nodeEnv} mode`);
-      log(`CORS configured for origin: ${corsOrigin}`);
+      log("serving on port 5000 in development mode");
     },
   );
 })();
