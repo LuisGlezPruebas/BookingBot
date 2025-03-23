@@ -140,19 +140,132 @@ export class MemStorage implements IStorage {
     });
     
     this.createReservation({
-      userId: 3, // David Glez
-      startDate: new Date("2025-06-15"),
-      endDate: new Date("2025-06-20"),
-      notes: "Vacaciones de verano",
-      status: "pending"
-    });
-    
-    this.createReservation({
       userId: 5, // Martina
       startDate: new Date("2025-07-10"),
       endDate: new Date("2025-07-15"),
       notes: "Semana en julio",
       status: "pending"
+    });
+    
+    // Añadir reservas predeterminadas para David Glez (userId 3)
+    // 1. Puente de mayo
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2025-04-30"),
+      endDate: new Date("2025-05-04"),
+      notes: "Puente de mayo",
+      status: "approved"
+    });
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2026-04-30"),
+      endDate: new Date("2026-05-03"),
+      notes: "Puente de mayo",
+      status: "approved"
+    });
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2027-04-30"),
+      endDate: new Date("2027-05-02"),
+      notes: "Puente de mayo",
+      status: "approved"
+    });
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2028-04-30"),
+      endDate: new Date("2028-05-03"),
+      notes: "Puente de mayo",
+      status: "approved"
+    });
+    
+    // 2. Última quincena de Junio
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2025-06-23"),
+      endDate: new Date("2025-07-06"),
+      notes: "Última quincena de Junio",
+      status: "approved"
+    });
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2026-06-22"),
+      endDate: new Date("2026-07-05"),
+      notes: "Última quincena de Junio",
+      status: "approved"
+    });
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2027-06-21"),
+      endDate: new Date("2027-07-03"),
+      notes: "Última quincena de Junio",
+      status: "approved"
+    });
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2028-06-20"),
+      endDate: new Date("2028-07-02"),
+      notes: "Última quincena de Junio",
+      status: "approved"
+    });
+    
+    // 3. Última quincena de Julio
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2025-07-21"),
+      endDate: new Date("2025-08-03"),
+      notes: "Última quincena de Julio",
+      status: "approved"
+    });
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2026-07-20"),
+      endDate: new Date("2026-08-02"),
+      notes: "Última quincena de Julio",
+      status: "approved"
+    });
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2027-07-19"),
+      endDate: new Date("2027-08-01"),
+      notes: "Última quincena de Julio",
+      status: "approved"
+    });
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2028-07-18"),
+      endDate: new Date("2028-07-31"),
+      notes: "Última quincena de Julio",
+      status: "approved"
+    });
+    
+    // 4. Última quincena de Agosto
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2025-08-18"),
+      endDate: new Date("2025-08-31"),
+      notes: "Última quincena de Agosto",
+      status: "approved"
+    });
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2026-08-24"),
+      endDate: new Date("2026-09-06"),
+      notes: "Última quincena de Agosto",
+      status: "approved"
+    });
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2027-08-23"),
+      endDate: new Date("2027-09-05"),
+      notes: "Última quincena de Agosto",
+      status: "approved"
+    });
+    this.createReservation({
+      userId: 3, 
+      startDate: new Date("2028-08-22"),
+      endDate: new Date("2028-09-04"),
+      notes: "Última quincena de Agosto",
+      status: "approved"
     });
   }
 
