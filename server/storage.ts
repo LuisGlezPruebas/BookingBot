@@ -130,29 +130,13 @@ export class MemStorage implements IStorage {
     this.createUser({ username: "Juan", password: "", isAdmin: false });
     this.createUser({ username: "Mº Teresa", password: "", isAdmin: false });
     
-    // Añadir algunas reservas pendientes de muestra para probar las notificaciones
-    this.createReservation({
-      userId: 2, // Luis Glez
-      startDate: new Date("2025-05-01"),
-      endDate: new Date("2025-05-05"),
-      notes: "Fin de semana en mayo",
-      status: "pending"
-    });
-    
-    this.createReservation({
-      userId: 5, // Martina
-      startDate: new Date("2025-07-10"),
-      endDate: new Date("2025-07-15"),
-      notes: "Semana en julio",
-      status: "pending"
-    });
-    
     // Añadir reservas predeterminadas para David Glez (userId 3)
     // 1. Puente de mayo
     this.createReservation({
       userId: 3, 
       startDate: new Date("2025-04-30"),
       endDate: new Date("2025-05-04"),
+      numberOfGuests: 4,
       notes: "Puente de mayo",
       status: "approved"
     });
@@ -160,6 +144,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2026-04-30"),
       endDate: new Date("2026-05-03"),
+      numberOfGuests: 4,
       notes: "Puente de mayo",
       status: "approved"
     });
@@ -167,6 +152,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2027-04-30"),
       endDate: new Date("2027-05-02"),
+      numberOfGuests: 4,
       notes: "Puente de mayo",
       status: "approved"
     });
@@ -174,6 +160,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2028-04-30"),
       endDate: new Date("2028-05-03"),
+      numberOfGuests: 4,
       notes: "Puente de mayo",
       status: "approved"
     });
@@ -183,6 +170,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2025-06-23"),
       endDate: new Date("2025-07-06"),
+      numberOfGuests: 4,
       notes: "Última quincena de Junio",
       status: "approved"
     });
@@ -190,6 +178,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2026-06-22"),
       endDate: new Date("2026-07-05"),
+      numberOfGuests: 4,
       notes: "Última quincena de Junio",
       status: "approved"
     });
@@ -197,6 +186,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2027-06-21"),
       endDate: new Date("2027-07-03"),
+      numberOfGuests: 4,
       notes: "Última quincena de Junio",
       status: "approved"
     });
@@ -204,6 +194,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2028-06-20"),
       endDate: new Date("2028-07-02"),
+      numberOfGuests: 4,
       notes: "Última quincena de Junio",
       status: "approved"
     });
@@ -213,6 +204,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2025-07-21"),
       endDate: new Date("2025-08-03"),
+      numberOfGuests: 4,
       notes: "Última quincena de Julio",
       status: "approved"
     });
@@ -220,6 +212,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2026-07-20"),
       endDate: new Date("2026-08-02"),
+      numberOfGuests: 4,
       notes: "Última quincena de Julio",
       status: "approved"
     });
@@ -227,6 +220,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2027-07-19"),
       endDate: new Date("2027-08-01"),
+      numberOfGuests: 4,
       notes: "Última quincena de Julio",
       status: "approved"
     });
@@ -234,6 +228,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2028-07-18"),
       endDate: new Date("2028-07-31"),
+      numberOfGuests: 4,
       notes: "Última quincena de Julio",
       status: "approved"
     });
@@ -243,6 +238,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2025-08-18"),
       endDate: new Date("2025-08-31"),
+      numberOfGuests: 4,
       notes: "Última quincena de Agosto",
       status: "approved"
     });
@@ -250,6 +246,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2026-08-24"),
       endDate: new Date("2026-09-06"),
+      numberOfGuests: 4,
       notes: "Última quincena de Agosto",
       status: "approved"
     });
@@ -257,6 +254,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2027-08-23"),
       endDate: new Date("2027-09-05"),
+      numberOfGuests: 4,
       notes: "Última quincena de Agosto",
       status: "approved"
     });
@@ -264,6 +262,7 @@ export class MemStorage implements IStorage {
       userId: 3, 
       startDate: new Date("2028-08-22"),
       endDate: new Date("2028-09-04"),
+      numberOfGuests: 4,
       notes: "Última quincena de Agosto",
       status: "approved"
     });
