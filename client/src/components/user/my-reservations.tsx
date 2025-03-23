@@ -127,6 +127,14 @@ export default function MyReservations() {
     queryKey: [`/api/user/reservations/${year}`, userId],
     // Solo activar la consulta cuando tengamos un userId válido
     enabled: userId !== null,
+    // Asegurarse de que se pasa el parámetro userId en la URL
+    queryFn: async () => {
+      const response = await fetch(`/api/user/reservations/${year}?userId=${userId}`);
+      if (!response.ok) {
+        throw new Error("Error al obtener las reservas");
+      }
+      return response.json();
+    }
   });
   
   // Query para obtener los datos del calendario (fechas disponibles/ocupadas)

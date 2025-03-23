@@ -56,9 +56,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const year = req.params.year;
       // Obtener el userId del parámetro o usar el default (2: Luis Glez)
       const userId = parseInt(req.query.userId as string) || 2;
+      
+      console.log(`Obteniendo reservas para el usuario con ID: ${userId} en el año: ${year}`);
+      
       const reservations = await storage.getUserReservationsByYear(userId, year);
+      
+      console.log(`Reservas encontradas: ${reservations.length}`);
+      console.log("Reservas:", JSON.stringify(reservations.map(r => ({ id: r.id, userId: r.userId, startDate: r.startDate, status: r.status }))));
+      
       res.json(reservations);
     } catch (error) {
+      console.error("Error obteniendo reservas de usuario:", error);
       res.status(500).json({ message: "Error fetching user reservations" });
     }
   });
