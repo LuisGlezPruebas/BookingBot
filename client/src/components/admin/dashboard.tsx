@@ -14,6 +14,8 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { getAvailableYears } from '@/lib/utils/date-utils';
+import { getApiUrl } from '@/config';
+import { useQuery } from '@tanstack/react-query';
 
 // Componente para tarjetas de estadísticas
 interface StatsCardProps {
@@ -42,51 +44,43 @@ function StatsCard({ title, value, icon, suffix }: StatsCardProps) {
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<ReservationStats | null>(null);
   const [currentYear, setCurrentYear] = useState<string>(new Date().getFullYear().toString());
   const [calendarData, setCalendarData] = useState<any[]>([]);
   const [reservations, setReservations] = useState<any[]>([]);
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
   
+  // Usar useQuery para obtener estadísticas
+  const { data: statsApiData } = useQuery({
+    queryKey: [`/api/admin/stats/${currentYear}`]
+  });
+
+  // Usar useQuery para obtener datos del calendario
+  const { data: calendarApiData } = useQuery({
+    queryKey: [`/api/user/calendar/${currentYear}`]
+  });
+
+  // Usar useQuery para obtener reservas
+  const { data: reservationsData } = useQuery({
+    queryKey: [`/api/admin/reservations/${currentYear}`]
+  });
+  
+  // Actualizar el estado cuando lleguen los datos
   useEffect(() => {
-    // Cargar estadísticas para el año actual
-    fetch(`/api/admin/stats/${currentYear}`)
-      .then(res => res.json())
-      .then(data => {
-        console.log("Datos de estadísticas recibidos:", data);
-        setStats(data);
-      })
-      .catch(error => {
-        console.error("Error al cargar estadísticas:", error);
-      });
+    if (calendarApiData) {
+      setCalendarData(calendarApiData);
+    }
+  }, [calendarApiData]);
+  
+  useEffect(() => {
+    if (reservationsData) {
+      const approvedReservations = reservationsData.filter((r: any) => r.status === 'approved');
+      setReservations(approvedReservations);
+    }
+  }, [reservationsData]);
 
-    // Cargar datos de calendario
-    fetch(`/api/user/calendar/${currentYear}`)
-      .then(res => res.json())
-      .then(data => {
-        setCalendarData(data);
-      })
-      .catch(error => {
-        console.error("Error al cargar datos del calendario:", error);
-      });
-
-    // Cargar reservas aprobadas
-    fetch(`/api/admin/reservations/${currentYear}`)
-      .then(res => res.json())
-      .then(data => {
-        console.log("Todas las reservaciones:", data);
-        const approvedReservations = data.filter((r: any) => r.status === 'approved');
-        console.log("Reservas aprobadas:", approvedReservations);
-        setReservations(approvedReservations);
-      })
-      .catch(error => {
-        console.error("Error al cargar reservas:", error);
-      });
-  }, [currentYear]);
-
-  // Stats placeholder
-  const statsData: ReservationStats = stats || {
+  // Stats placeholder con los datos obtenidos de la API
+  const statsData = statsApiData as ReservationStats || {
     totalReservations: 0,
     occupiedDays: 0,
     frequentUser: "-",
