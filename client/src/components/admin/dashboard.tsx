@@ -51,31 +51,40 @@ export default function AdminDashboard() {
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
   
   // Usar useQuery para obtener estadísticas
-  const { data: statsApiData } = useQuery({
+  const { data: statsApiData, isLoading: statsLoading, error: statsError } = useQuery({
     queryKey: [`/api/admin/stats/${currentYear}`]
   });
 
   // Usar useQuery para obtener datos del calendario
-  const { data: calendarApiData } = useQuery({
+  const { data: calendarApiData, isLoading: calendarLoading, error: calendarError } = useQuery({
     queryKey: [`/api/user/calendar/${currentYear}`]
   });
 
   // Usar useQuery para obtener reservas
-  const { data: reservationsData } = useQuery({
+  const { data: reservationsData, isLoading: reservationsLoading, error: reservationsError } = useQuery({
     queryKey: [`/api/admin/reservations/${currentYear}`]
   });
   
   // Actualizar el estado cuando lleguen los datos
   useEffect(() => {
+    console.log("Datos del calendario recibidos:", calendarApiData);
+    
     if (calendarApiData && Array.isArray(calendarApiData)) {
       setCalendarData(calendarApiData);
+    } else if (calendarApiData && !Array.isArray(calendarApiData)) {
+      console.error("Los datos del calendario no son un array:", calendarApiData);
     }
   }, [calendarApiData]);
   
   useEffect(() => {
+    console.log("Datos de reservas recibidos:", reservationsData);
+    
     if (reservationsData && Array.isArray(reservationsData)) {
       const approvedReservations = reservationsData.filter((r: any) => r.status === 'approved');
+      console.log("Reservas aprobadas filtradas:", approvedReservations);
       setReservations(approvedReservations);
+    } else if (reservationsData && !Array.isArray(reservationsData)) {
+      console.error("Los datos de reservas no son un array:", reservationsData);
     }
   }, [reservationsData]);
 
