@@ -67,20 +67,20 @@ export default function AdminDashboard() {
   
   // Actualizar el estado cuando lleguen los datos
   useEffect(() => {
-    if (calendarApiData) {
+    if (calendarApiData && Array.isArray(calendarApiData)) {
       setCalendarData(calendarApiData);
     }
   }, [calendarApiData]);
   
   useEffect(() => {
-    if (reservationsData) {
+    if (reservationsData && Array.isArray(reservationsData)) {
       const approvedReservations = reservationsData.filter((r: any) => r.status === 'approved');
       setReservations(approvedReservations);
     }
   }, [reservationsData]);
 
   // Stats placeholder con los datos obtenidos de la API
-  const statsData = statsApiData as ReservationStats || {
+  const defaultStats: ReservationStats = {
     totalReservations: 0,
     occupiedDays: 0,
     frequentUser: "-",
@@ -88,6 +88,8 @@ export default function AdminDashboard() {
     reservationsByMonth: Array.from({ length: 12 }, (_, i) => ({ month: i + 1, count: 0 })),
     reservationsByUser: []
   };
+  
+  const statsData = statsApiData ? (statsApiData as ReservationStats) : defaultStats;
 
   // Calcular las noches para cada reserva
   const calculateNights = (startDate: string, endDate: string): number => {
