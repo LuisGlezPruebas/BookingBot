@@ -465,10 +465,10 @@ export class MemStorage implements IStorage {
         if (day >= startDate && day <= endDate) {
           if (reservation.status === 'approved') {
             status = 'occupied';
-            break; // Priority: occupied > pending/modified > available
-          } else if ((reservation.status === 'pending' || reservation.status === 'modified') && status !== 'occupied') {
+            break; // If it's occupied, no need to check other reservations
+          } else if (reservation.status === 'pending' || reservation.status === 'modified') {
             status = 'pending';
-            // Don't break, continue checking in case there's an approved reservation
+            // Don't break, as an approved reservation would override a pending one
           }
         }
       }
