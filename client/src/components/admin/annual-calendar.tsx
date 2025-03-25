@@ -124,9 +124,7 @@ export default function AnnualCalendar({ year, calendarData, reservations }: Ann
   
   useEffect(() => {
     // Verificar qué reservas están aprobadas
-    console.log("Todas las reservaciones:", reservations);
     const approvedReservations = reservations.filter((r: any) => r.status === 'approved');
-    console.log("Reservas aprobadas:", approvedReservations);
     
     // Predefinir todos los usuarios conocidos (excepto Admin)
     const defaultUsernames: Record<number, string> = {
