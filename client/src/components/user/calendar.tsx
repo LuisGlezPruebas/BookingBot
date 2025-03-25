@@ -143,11 +143,6 @@ export default function Calendar() {
         const startDate = parseDate(selectedStartDate);
         const endDate = parseDate(selectedEndDate);
         
-        console.log("Parsed dates:", {
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString()
-        });
-        
         createReservation.mutate({
           ...data,
           startDate: startDate.toISOString(),
