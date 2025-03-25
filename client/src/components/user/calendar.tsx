@@ -113,8 +113,6 @@ export default function Calendar() {
         notes: data.notes || ""
       };
       
-      console.log("Sending reservation data:", formattedData);
-      
       return await apiRequest("POST", "/api/user/reservations", formattedData);
     },
     onSuccess: () => {
@@ -139,12 +137,6 @@ export default function Calendar() {
   });
   
   const onSubmit = (data: ReservationFormValues) => {
-    // Debug - log the data to troubleshoot format issues
-    console.log("Form submission data:", {
-      startDateString: selectedStartDate,
-      endDateString: selectedEndDate
-    });
-    
     // Convert date strings to proper date objects to avoid format errors
     if (selectedStartDate && selectedEndDate) {
       try {
