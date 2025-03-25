@@ -7,11 +7,18 @@ services:
       - "5000:5000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/casa_tamariu
+      - PGHOST=db
+      - PGUSER=postgres
+      - PGPASSWORD=postgres
+      - PGDATABASE=casa_tamariu
+      - PGPORT=5432
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
     depends_on:
       - db
     restart: unless-stopped
+    command: >
+      sh -c "npm run db:push && npm start"
 
   db:
     image: postgres:14-alpine
@@ -23,6 +30,7 @@ services:
       - POSTGRES_DB=casa_tamariu
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     restart: unless-stopped
 
 volumes:
