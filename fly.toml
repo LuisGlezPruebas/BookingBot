@@ -1,0 +1,22 @@
+app = "casa-tamariu"
+primary_region = "mad"
+kill_signal = "SIGINT"
+kill_timeout = 5
+
+[env]
+  PORT = "5000"
+
+[http_service]
+  internal_port = 5000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[deploy]
+  release_command = "npm run db:push"
+
+[[statics]]
+  guest_path = "/app/client/dist"
+  url_prefix = "/"
